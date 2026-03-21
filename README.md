@@ -56,3 +56,8 @@ sudo ./target/release/snf-core --monitor --interface 1  # use --help to find you
 ## License
 
 Apache 2.0 — Copyright 2026 Tejas Padigel
+## Open Core
+
+SNF-Core is the open source protocol analysis layer of the Shadow Network Fingerprinting Engine. It provides deterministic packet capture, flow tracking, and protocol analysis — complete and production-ready as a standalone tool.
+
+The commercial edition adds threat detection (beacon detection, DGA scoring, DNS tunneling), behavioral analysis, forensic evidence bundles, baseline comparison, and ICS/SCADA protocol support.

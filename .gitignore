@@ -21,3 +21,5 @@ snf.toml
 Thumbs.db
 snf_determinism_pass1.ndjson
 snf_determinism_pass2.ndjson
+
+*.mmdb

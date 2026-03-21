@@ -30,7 +30,7 @@ Same PCAP + same config + same binary = SHA-256 identical output. Always.
 
 ## Quick Start
 ```bash
-git clone https://github.com/YOUR_ORG/snf-core
+git clone https://github.com/padigeltejas/snf-core
 cd snf-core
 cargo build --release
 
@@ -38,7 +38,7 @@ cargo build --release
 ./target/release/snf-core --forensic --pcap-file capture.pcap
 
 # Live capture (requires root/Administrator)
-sudo ./target/release/snf-core --monitor --interface 0
+sudo ./target/release/snf-core --monitor --interface 1  # use --help to find your interface index
 
 # Verify determinism
 ./target/release/snf-core --determinism-check --pcap-file capture.pcap

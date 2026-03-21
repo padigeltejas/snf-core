@@ -13,7 +13,7 @@
 
 ## Setup
 ```bash
-git clone https://github.com/YOUR_ORG/snf-core
+git clone https://github.com/padigeltejas/snf-core
 cd snf-core
 sudo apt-get install libpcap-dev  # Linux
 cargo build

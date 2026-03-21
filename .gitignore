@@ -7,7 +7,7 @@ datasets/learned_dot.txt
 *.ndjson.worker_*
 snf_report_*.json
 snf_report_*.txt
-output/
+/output/
 *.pcap
 *.cap
 *.pcapng

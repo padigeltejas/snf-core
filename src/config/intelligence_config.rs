@@ -1,4 +1,4 @@
-// src/config/intelligence_config.rs
+﻿// src/config/intelligence_config.rs
 //
 // Intelligence layer configuration — controls threat scoring, fingerprinting
 // databases, entropy analysis, beacon detection, and network attribution.
@@ -102,8 +102,8 @@ pub struct TlsRiskWeights {
 impl Default for IntelligenceConfig {
     fn default() -> Self {
         Self {
-            enable_asn_mapping:    true,
-            enable_geoip_mapping:  true,
+            enable_asn_mapping:    false,
+            enable_geoip_mapping:  false,
             enable_reverse_dns:    true,
             asn_db_path:           "datasets/asn_ipv4.mmdb".to_string(),
             geo_db_path:           "datasets/geo_ipv4.mmdb".to_string(),

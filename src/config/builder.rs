@@ -1,4 +1,4 @@
-// src/config/builder.rs
+﻿// src/config/builder.rs
 //
 // ConfigBuilder - fluent builder for EngineConfig.
 //
@@ -85,8 +85,8 @@ impl ConfigBuilder {
         config.protocol.doh_detection            = true;
 
         // Intelligence: full scoring and attribution
-        config.intelligence.enable_asn_mapping       = true;
-        config.intelligence.enable_geoip_mapping     = true;
+        config.intelligence.enable_asn_mapping       = false;
+        config.intelligence.enable_geoip_mapping     = false;
         config.intelligence.enable_reverse_dns       = true;
         config.intelligence.entropy_analysis_enabled = true;
         config.intelligence.dga_detection_enabled    = true;
@@ -143,8 +143,8 @@ impl ConfigBuilder {
         config.protocol.doh_detection            = true;
 
         // Intelligence: attribution + scoring, moderate threshold
-        config.intelligence.enable_asn_mapping       = true;
-        config.intelligence.enable_geoip_mapping     = true;
+        config.intelligence.enable_asn_mapping       = false;
+        config.intelligence.enable_geoip_mapping     = false;
         config.intelligence.enable_reverse_dns       = true;
         config.intelligence.tls_risk_alert_on_score  = true;
         config.intelligence.tls_risk_threshold       = 60;
@@ -265,8 +265,8 @@ impl ConfigBuilder {
         config.protocol.doh_detection            = true;
 
         // Intelligence: enabled, RDNS learning disabled for determinism
-        config.intelligence.enable_asn_mapping       = true;
-        config.intelligence.enable_geoip_mapping     = true;
+        config.intelligence.enable_asn_mapping       = false;
+        config.intelligence.enable_geoip_mapping     = false;
         config.intelligence.enable_reverse_dns       = true;
         config.intelligence.rdns_learning_enabled    = false;
         config.intelligence.tls_risk_alert_on_score  = true;

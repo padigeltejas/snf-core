@@ -1,0 +1,9 @@
+﻿# snf.toml — SNF-Core runtime configuration
+# Copy this file to snf.toml and adjust for your environment.
+# CLI flags always override these settings.
+
+# Default output directory (created automatically)
+output_dir = "output"
+
+# Memory cap in MB (0 = unlimited)
+# max_memory_mb = 0

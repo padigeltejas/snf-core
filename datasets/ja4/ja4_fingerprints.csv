@@ -1,0 +1,115 @@
+ja4,application
+ja4,application
+t13d15_16_h2,Chrome
+t13d16_16_h2,Firefox
+t13d17_16_h2,Edge
+t12d15_14_h1,Python Requests
+t12d14_13_h1,Java TLS
+t13d15_17_h2,Cloudflare Client
+t13d15_18_h2,Go HTTP Client
+t13d15_16_h3,HTTP3 Client
+t13d16_17_h2,Chrome Variant
+t13d14_16_h2,Chrome Mobile
+t13d18_18_h2,Chrome Canary
+t13d19_18_h2,Chrome Dev
+t13d20_19_h2,Chrome Beta
+t13d15_16_h2,Chromium
+t13d16_17_h2,Brave
+t13d17_17_h2,Opera
+t13d18_18_h2,Vivaldi
+t13d15_17_h2,Electron App
+t13d16_18_h2,NodeJS TLS
+t13d17_18_h2,NodeJS HTTP Client
+t13d18_19_h2,Deno TLS
+t13d19_20_h2,Cloudflare Worker
+t13d15_15_h1,Curl TLS
+t13d16_15_h1,Wget TLS
+t13d17_16_h1,Rust Reqwest
+t13d18_16_h1,Rust Hyper
+t13d19_17_h1,OpenSSL Client
+t13d20_18_h1,BoringSSL Client
+t13d21_18_h1,LibreSSL Client
+t13d22_19_h1,Java HTTP Client
+t13d23_20_h1,Python urllib
+t13d24_20_h1,Python aiohttp
+t13d25_21_h1,Python HTTPX
+t13d26_22_h1,Python Requests TLS
+t13d27_22_h1,Go TLS Client
+t13d28_23_h1,Go HTTP2
+t13d29_23_h1,Go gRPC
+t13d30_24_h1,Kubernetes Client
+t13d31_25_h1,Docker Client
+t13d32_25_h1,Git Client
+t13d33_26_h1,Github Actions Runner
+t13d34_26_h1,GitLab Runner
+t13d35_27_h1,CI/CD Agent
+t13d36_27_h1,Terraform Client
+t13d37_28_h1,AWS CLI
+t13d38_28_h1,Azure CLI
+t13d39_29_h1,GCP CLI
+t13d40_30_h1,Ansible Client
+t13d41_30_h1,Puppet Client
+t13d42_31_h1,Chef Client
+t13d43_31_h1,Monitoring Agent
+t13d44_32_h1,Prometheus Client
+t13d45_32_h1,Datadog Agent
+t13d46_33_h1,NewRelic Agent
+t13d47_33_h1,Elastic Agent
+t13d48_34_h1,Zabbix Agent
+t13d49_34_h1,Grafana Agent
+t13d50_35_h1,Security Scanner
+t13d51_36_h1,Nmap NSE TLS
+t13d52_36_h1,Nessus Scanner
+t13d53_37_h1,OpenVAS Scanner
+t13d54_37_h1,Burp Suite
+t13d55_38_h1,OWASP ZAP
+t13d56_39_h1,Metasploit TLS
+t13d57_39_h1,Cobalt Strike
+t13d58_40_h1,Sliver C2
+t13d59_41_h1,Mythic C2
+t13d60_41_h1,Empire C2
+t13d61_42_h1,Quasar RAT
+t13d62_42_h1,AsyncRAT
+t13d63_43_h1,Emotet
+t13d64_44_h1,TrickBot
+t13d65_44_h1,Qakbot
+t13d66_45_h1,Dridex
+t13d67_46_h1,RedLine Stealer
+t13d68_47_h1,Raccoon Stealer
+t13d69_48_h1,AgentTesla
+t13d70_49_h1,FormBook
+t13d71_50_h1,LokiBot
+t13d72_51_h1,NanoCore
+t13d73_52_h1,DarkComet
+t13d74_53_h1,Remcos RAT
+t13d75_54_h1,NetWire RAT
+t13d76_55_h1,PlugX RAT
+t13d77_56_h1,ShadowPad
+t13d78_57_h1,APT TLS Stack
+t13d79_58_h1,Custom Malware TLS
+t13d80_59_h1,Unknown Clientt12d189_h2,Unknown
+t10d2013_00,Unknown
+t10i156_00,Unknown
+t10d158_00,Unknown
+t10d1512_h2,Unknown
+t10i1510_h2,Unknown
+t10d1513_h2,Unknown
+t10d2012_00,Unknown
+t10d158_h2,Unknown
+t10d2013_h2,Unknown
+t12d2013_00,Unknown
+t12d1517_h2,Unknown
+t12d1516_h2,Unknown
+t12d2012_00,Unknown
+t12d2013_h2,Unknown
+t12d2014_h2,Unknown
+t12d1517h2,Unknown
+t12d189h2,Unknown
+t12d201300,Unknown
+t12d2013h2,Unknown
+t12d18700,Unknown
+t12d201200,Unknown
+t12d2014h2,Unknown
+t00i0000,Unknown
+t12d1516h2,Unknown
+t12d1516h1,Unknown

@@ -201,7 +201,7 @@ fn run_live_capture(
 
     let mut cap = match Capture::from_device(device.name.as_str())
         .and_then(|b| b.promisc(config.capture.promiscuous_mode)
-            .snaplen(config.capture.snaplen).open())
+            .snaplen(config.capture.snaplen).timeout(500).open())
     {
         Ok(c) => c,
         Err(e) => { eprintln!("[SNF] Fatal: {:?}", e); return; }

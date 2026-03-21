@@ -101,7 +101,7 @@ ASN and GeoIP enrichment is disabled by default. To enable:
 1. Register free at https://www.maxmind.com/en/geolite2/signup
 2. Download `GeoLite2-City.mmdb` and `GeoLite2-ASN.mmdb`
 3. Place them in the `datasets/` directory
-4. Enable via CLI: `--enable-asn --enable-geoip` (or set in config)
+4. Place them in the `datasets/` directory — SNF-Core will detect them automatically on next run
 
 ## Performance Tuning
 ```bash

@@ -12,7 +12,6 @@ snf_report_*.txt
 *.cap
 *.pcapng
 real_pcaps/
-snf.toml
 .vscode/
 .idea/
 *.swp

@@ -1,0 +1,8 @@
+﻿# SNF-Core runtime configuration
+# CLI flags always override these settings.
+
+# Default output directory (created automatically if it does not exist)
+output_dir = "output"
+
+# Memory cap in MB (0 = unlimited)
+# max_memory_mb = 0

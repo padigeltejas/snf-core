@@ -1,4 +1,4 @@
-use std::fs::{File, OpenOptions};
+﻿use std::fs::{File, OpenOptions};
 use std::io::{BufWriter, Write};
 use crate::core::event::SnfEvent;
 

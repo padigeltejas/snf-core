@@ -289,6 +289,8 @@ fn run_worker(
 
     // Final flush.
     drop_accum.flush(stats.packets_processed, last_timestamp_us, &mut event_bus, &mut stats);
+    stats.flows_created = flow_table.flow_count() as u64;
+    stats.events_emitted = event_bus.as_ref().map(|b| b.event_count()).unwrap_or(0);
     if let Some(mut bus) = event_bus { bus.flush(); }
 
     stats.mark_finished();
@@ -352,9 +354,7 @@ fn process_raw_packet(
                         flow_table, dns_cache, ports_db,
                         analyzer_manager, event_bus,
                     );
-                    stats.events_emitted = stats.events_emitted.saturating_add(
-                        event_bus.as_ref().map(|b| b.event_count()).unwrap_or(0)
-                    );
+
                 }
                 TransportSlice::Udp(udp) => {
                     let src_port = udp.source_port();

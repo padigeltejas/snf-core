@@ -48,6 +48,13 @@ fn load_snf_toml() {
 }
 
 fn main() {
+    // No args: print help and exit cleanly
+    if std::env::args().count() == 1 {
+        println!("SNF-Core — Shadow Network Fingerprinting Engine");
+        print_help();
+        return;
+    }
+
     load_snf_toml();
 
     println!("SNF-Core — Shadow Network Fingerprinting Engine");

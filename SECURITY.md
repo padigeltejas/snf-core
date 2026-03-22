@@ -3,7 +3,7 @@
 ## Reporting a Vulnerability
 
 Do NOT open a public GitHub issue for security vulnerabilities.
-Email: padigeltejas@gmail.com
+Email: snflabs.io@gmail.com
 
 Include: description, reproduction steps, potential impact.
 You will receive acknowledgement within 72 hours.

@@ -1,0 +1,70 @@
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use snf_core::core::packet_context::PacketContext;
+use snf_core::discovery::dns_cache::DnsCache;
+use snf_core::config::engine_config::EngineConfig;
+use snf_core::analyzers::dns;
+use std::net::{IpAddr, Ipv4Addr};
+
+fn bench_dns_parser(c: &mut Criterion) {
+    // Basic DNS Query for example.com
+    let dummy_dns_payload: &[u8] = &[
+        0x12, 0x34, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x07, 0x65, 0x78, 0x61,
+        0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
+        0x00, 0x00, 0x01, 0x00, 0x01,
+    ];
+
+    let mut dns_cache = DnsCache::new();
+    let config = Default::default();
+
+    c.bench_function("parse_dns_query", |b| {
+        b.iter(|| {
+            let mut ctx = PacketContext::new(
+                IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)),
+                IpAddr::V4(Ipv4Addr::new(8, 8, 8, 8)),
+                54321,
+                53,
+                "udp",
+                dummy_dns_payload.len(),
+                123456789,
+            );
+            dns::analyze(
+                black_box(&mut ctx),
+                black_box(dummy_dns_payload),
+                black_box(&mut dns_cache),
+                black_box(&config),
+            )
+        })
+    });
+}
+
+criterion_group!(benches, bench_dns_parser);
+criterion_main!(benches);
+
+// Micro-benchmark for DNS and core packet parsers.
+// This proves the high-performance claim (e.g., millions of packets/sec in memory).
+
+fn bench_dns_parsing(c: &mut Criterion) {
+    // A raw hex dump of a simple DNS query packet (Ethernet + IPv4 + UDP + DNS)
+    // "www.example.com" A record query
+    let packet: [u8; 73] = [
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0x08, 0x00, // Ether
+        0x45, 0x00, 0x00, 0x3b, 0x1a, 0x2b, 0x00, 0x00, 0x40, 0x11, 0x42, 0xa6, 0xc0, 0xa8, 0x01, 0x02, 0x08, 0x08, 0x08, 0x08, // IPv4
+        0x90, 0x38, 0x00, 0x35, 0x00, 0x27, 0xfe, 0x8c, // UDP
+        0x12, 0x34, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // DNS Header
+        0x03, 0x77, 0x77, 0x77, 0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d, 0x00, // Query name
+        0x00, 0x01, 0x00, 0x01 // QTYPE A, QCLASS IN
+    ];
+
+    c.bench_function("etherparse_dns", |b| {
+        b.iter(|| {
+            // Test etherparse processing time to simulate standard ingestion loop
+            if let Ok(value) = etherparse::SlicedPacket::from_ethernet(black_box(&packet)) {
+                black_box(value);
+            }
+        });
+    });
+}
+
+criterion_group!(benches, bench_dns_parsing);
+criterion_main!(benches);

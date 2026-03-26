@@ -1,0 +1,8 @@
+File: datasets\ioc\ip_blocklist.csv
+ip,label,confidence,threat_actor
+185.176.221.72,Emotet C2,99,Emotet
+185.234.73.125,Emotet C2,99,Emotet
+192.154.212.181,Emotet C2,95,Emotet
+91.240.118.168,Trickbot C2,95,Trickbot
+108.177.236.195,Cobalt Strike,100,APT29
+203.0.113.50,Test_Malware_1,100,TestActor

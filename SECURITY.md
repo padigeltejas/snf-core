@@ -6,7 +6,12 @@ Do NOT open a public GitHub issue for security vulnerabilities.
 Email: snflabs.io@gmail.com
 
 Include: description, reproduction steps, potential impact.
-You will receive acknowledgement within 72 hours.
+
+### Triaging & SLA
+- **Triaged by:** Tejas Padigel (SNF Labs Founder/Maintainer).
+- **Acknowledgement SLA:** Within 72 hours.
+- **Fix Delivery SLA:** Patched releases are issued within 7 days for DoS bugs and 48 hours for arbitrary code execution or out-of-bounds vectors.
+- **Disclosure:** We will explicitly credit the researcher in our advisories upon release.
 
 ## Security Model
 

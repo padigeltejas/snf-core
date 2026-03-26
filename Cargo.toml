@@ -1,4 +1,4 @@
-﻿[package]
+[package]
 name        = "snf-core"
 version     = "1.0.0"
 edition     = "2024"
@@ -35,3 +35,13 @@ path = "examples/basic_pcap.rs"
 [[example]]
 name = "live_capture"
 path = "examples/live_capture.rs"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[profile.bench]
+opt-level = 3
+
+[[bench]]
+name = "parser_bench"
+harness = false

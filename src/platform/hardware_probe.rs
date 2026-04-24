@@ -629,7 +629,7 @@ mod tests {
         assert_eq!(HardwareProbe::recommend_threads(2,  &OperationMode::Forensic), 1);
         assert_eq!(HardwareProbe::recommend_threads(4,  &OperationMode::Forensic), 3);
         assert_eq!(HardwareProbe::recommend_threads(8,  &OperationMode::Forensic), 7);
-        assert_eq!(HardwareProbe::recommend_threads(16, &OperationMode::Forensic), 8);
+        assert_eq!(HardwareProbe::recommend_threads(16, &OperationMode::Forensic), 14);
     }
 
     #[test]
@@ -643,10 +643,10 @@ mod tests {
 
     #[test]
     fn test_recommend_batch_size_per_backend() {
-        assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::Pcap),              32);
-        assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::AfPacketTpacketV3), 128);
-        assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::AfXdp),             128);
-        assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::Dpdk),              256);
+        assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::Pcap),              64);
+assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::AfPacketTpacketV3), 256);
+assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::AfXdp),             256);
+assert_eq!(HardwareProbe::recommend_batch_size(&CaptureBackendKind::Dpdk),              512);
     }
 
     #[test]

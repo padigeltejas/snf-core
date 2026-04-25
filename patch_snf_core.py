@@ -411,6 +411,44 @@ def patch_reporting(path):
 #  MAIN
 # ═════════════════════════════════════════════════════════════════════════════
 
+# ══ P6/P7 patch strings ══════════════════════════════════════════════════════
+
+P6_SEARCH  = '    /// Human-readable summary for session report.\n    pub fn summary_line(&self) -> String {\n        format!(\n            "Workers: {} | Packets: {} | Events: {} | Flows: {} | \\\\\n             Drops: {} | PPS: {:.0} | Balance: {:.2}",\n            self.worker_count,\n            self.total_packets_processed,\n            self.total_events_emitted,\n            self.total_flows_created,\n            self.total_upstream_drops,\n            self.avg_packets_per_second,\n            self.load_balance_ratio,\n        )\n    }\n}'
+
+P6_REPLACE = '    /// Human-readable summary for session report.\n    pub fn summary_line(&self) -> String {\n        format!(\n            "Workers: {} | Packets: {} | Events: {} | Flows: {} | \\\\\n             Drops: {} | PPS: {:.0} | Balance: {:.2}",\n            self.worker_count,\n            self.total_packets_processed,\n            self.total_events_emitted,\n            self.total_flows_created,\n            self.total_upstream_drops,\n            self.avg_packets_per_second,\n            self.load_balance_ratio,\n        )\n    }\n\n    /// Print a full structured summary box at end of a multi-threaded session.\n    pub fn print_final_summary(&self, mode: &str, output_path: &str, pcap_sha256: &str) {\n        let sep  = "=".repeat(62);\n        let dsep = "-".repeat(62);\n        println!();\n        println!("{}", sep);\n        println!("  SNF-Core  |  Session Complete");\n        println!("{}", sep);\n        println!("  Mode      : {}", mode);\n        println!("  Output    : {}", output_path);\n        if !pcap_sha256.is_empty() && pcap_sha256 != "live" {\n            println!("  SHA-256   : {}", pcap_sha256);\n        }\n        println!("{}", dsep);\n        println!("  Workers   : {}", self.worker_count);\n        println!("  Packets   : {}", self.total_packets_processed);\n        println!("  Events    : {}", self.total_events_emitted);\n        println!("  Flows     : {} (across all workers)", self.total_flows_created);\n        if let Some(dur) = self.session_duration {\n            let secs = dur.as_secs_f64();\n            if secs > 0.0 {\n                println!("  Duration  : {:.1}s  ({:.0} pps avg)", secs, self.avg_packets_per_second);\n            }\n        }\n        if self.total_upstream_drops > 0 {\n            println!("  Drops     : {} (queue full)", self.total_upstream_drops);\n        }\n        if self.per_worker_packets.len() > 1 {\n            println!("{}", dsep);\n            println!("  Worker Distribution (balance: {:.2}):", self.load_balance_ratio);\n            for (i, pkts) in self.per_worker_packets.iter().enumerate() {\n                println!("    Worker {:>2}   {} pkts", i, pkts);\n            }\n        }\n        println!("{}", sep);\n        println!();\n    }\n}'
+
+P7A_SEARCH  = '        drop(tx);\n        let stats = pool.shutdown();\n        merge_worker_shards(&output_path, num_workers);\n        snf_log!(config, "[SNF] {}", stats.summary_line());\n    } else {\n        let mut engine = CaptureEngine::new(config, &output_path, &pcap_path, capture_mode, pcap_sha256);'
+
+P7A_REPLACE = '        drop(tx);\n        let stats = pool.shutdown();\n        merge_worker_shards(&output_path, num_workers);\n        snf_log!(config, "[SNF] {}", stats.summary_line());\n        if !config.is_stealth() {\n            stats.print_final_summary(\n                config.operation_mode.as_str(),\n                &output_path,\n                &pcap_sha256,\n            );\n        }\n    } else {\n        let mut engine = CaptureEngine::new(config, &output_path, &pcap_path, capture_mode, pcap_sha256);'
+
+P7B_SEARCH  = '        drop(tx);\n        let stats = pool.shutdown();\n        merge_worker_shards(&output_path, num_workers);\n        snf_log!(config, "[SNF] {}", stats.summary_line());\n        return;\n    }'
+
+P7B_REPLACE = '        drop(tx);\n        let stats = pool.shutdown();\n        merge_worker_shards(&output_path, num_workers);\n        snf_log!(config, "[SNF] {}", stats.summary_line());\n        if !config.is_stealth() {\n            stats.print_final_summary(\n                config.operation_mode.as_str(),\n                &output_path,\n                "live",\n            );\n        }\n        return;\n    }'
+
+
+def patch_thread_stats(path):
+    """Add print_final_summary() to AggregateStats in thread_stats.rs.
+    Uses end-of-impl-block detection — avoids fragile string matching."""
+    if not os.path.exists(path):
+        fail(f"P6: file not found: {path}")
+        return False
+    text = read(path)
+    if "print_final_summary" in text:
+        skip("P6 — threading/thread_stats.rs (already present)")
+        return True
+    # Find end of AggregateStats impl block — the very last `}` in the file.
+    last_brace = text.rfind("\n}")
+    if last_brace == -1:
+        fail("P6: could not locate end of AggregateStats impl block")
+        return False
+    # Insert new method before the final closing brace.
+    insert_at = last_brace + 1   # after the \n, before the }
+    new_text = text[:insert_at] + '\n    /// Print a full structured summary box at end of a multi-threaded session.\n    ///\n    /// Called from capture/mod.rs after pool.shutdown() + merge_worker_shards().\n    pub fn print_final_summary(&self, mode: &str, output_path: &str, pcap_sha256: &str) {\n        let sep  = "=".repeat(62);\n        let dsep = "-".repeat(62);\n        println!();\n        println!("{}", sep);\n        println!("  SNF-Core  |  Session Complete");\n        println!("{}", sep);\n        println!("  Mode      : {}", mode);\n        println!("  Output    : {}", output_path);\n        if !pcap_sha256.is_empty() && pcap_sha256 != "live" {\n            println!("  SHA-256   : {}", pcap_sha256);\n        }\n        println!("{}", dsep);\n        println!("  Workers   : {}", self.worker_count);\n        println!("  Packets   : {}", self.total_packets_processed);\n        println!("  Events    : {}", self.total_events_emitted);\n        println!("  Flows     : {} (across all workers)", self.total_flows_created);\n        if let Some(dur) = self.session_duration {\n            let secs = dur.as_secs_f64();\n            if secs > 0.0 {\n                println!("  Duration  : {:.1}s  ({:.0} pps avg)", secs, self.avg_packets_per_second);\n            }\n        }\n        if self.total_upstream_drops > 0 {\n            println!("  Drops     : {} (queue full)", self.total_upstream_drops);\n        }\n        if self.per_worker_packets.len() > 1 {\n            println!("{}", dsep);\n            println!("  Worker Distribution (balance: {:.2}):", self.load_balance_ratio);\n            for (i, pkts) in self.per_worker_packets.iter().enumerate() {\n                println!("    Worker {:>2}   {} pkts", i, pkts);\n            }\n        }\n        println!("{}", sep);\n        println!();\n    }\n' + text[insert_at:]
+    backup(path)
+    write(path, new_text)
+    ok("P6 — threading/thread_stats.rs print_final_summary() added to AggregateStats")
+    return True
+
 def main():
     banner("SNF-Core Patcher")
     print("  Applying bug fixes and improvements to the public repo.\n")
@@ -462,6 +500,28 @@ def main():
     # P5 — reporting/mod.rs add print_final_summary()
     banner("P5  reporting/mod.rs — add print_final_summary()")
     results.append(patch_reporting("src/reporting/mod.rs"))
+
+    # P6 — thread_stats.rs add print_final_summary() to AggregateStats
+    banner("P6  threading/thread_stats.rs — add print_final_summary() to AggregateStats")
+    results.append(patch_thread_stats("src/threading/thread_stats.rs"))
+
+    # P7a — capture/mod.rs multi-threaded pcap path calls summary
+    banner("P7a  capture/mod.rs — multi-thread PCAP path prints summary box")
+    results.append(patch_file(
+        "src/capture/mod.rs",
+        P7A_SEARCH,
+        P7A_REPLACE,
+        "P7a — run_pcap_file() multi-thread summary"
+    ))
+
+    # P7b — capture/mod.rs multi-threaded live path calls summary
+    banner("P7b  capture/mod.rs — multi-thread live path prints summary box")
+    results.append(patch_file(
+        "src/capture/mod.rs",
+        P7B_SEARCH,
+        P7B_REPLACE,
+        "P7b — run_live_capture() multi-thread summary"
+    ))
 
     # Summary
     banner("Patch Summary")

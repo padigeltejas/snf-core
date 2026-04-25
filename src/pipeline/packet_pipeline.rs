@@ -315,7 +315,7 @@ impl PacketPipeline {
                 dns_cache.insert(resolved_ip, domain.clone());
 
                 if config.output.show_dns_logs {
-                    println!("[DNS] Cached: {} Ã¢â€ â€™ {}", resolved_ip, domain);
+                    println!("[DNS] Cached: {} -------- {}", resolved_ip, domain);
                 }
             }
             if let Some(ref ptr) = ctx.dns_ptr_record {
@@ -359,7 +359,7 @@ impl PacketPipeline {
                 if record_type == "A" || record_type == "AAAA" {
                     dns_cache.insert(ctx.src_ip, mdns_name.clone());
                     if config.output.show_mdns_logs {
-                        println!("[mDNS] Cached: {} Ã¢â€ â€™ {}", ctx.src_ip, mdns_name);
+                        println!("[mDNS] Cached: {} -------- {}", ctx.src_ip, mdns_name);
                     }
                 }
             }

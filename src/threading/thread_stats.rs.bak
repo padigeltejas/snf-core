@@ -300,44 +300,4 @@ impl AggregateStats {
             self.load_balance_ratio,
         )
     }
-
-    /// Print a full structured summary box at end of a multi-threaded session.
-    ///
-    /// Called from capture/mod.rs after pool.shutdown() + merge_worker_shards().
-    pub fn print_final_summary(&self, mode: &str, output_path: &str, pcap_sha256: &str) {
-        let sep  = "=".repeat(62);
-        let dsep = "-".repeat(62);
-        println!();
-        println!("{}", sep);
-        println!("  SNF-Core  |  Session Complete");
-        println!("{}", sep);
-        println!("  Mode      : {}", mode);
-        println!("  Output    : {}", output_path);
-        if !pcap_sha256.is_empty() && pcap_sha256 != "live" {
-            println!("  SHA-256   : {}", pcap_sha256);
-        }
-        println!("{}", dsep);
-        println!("  Workers   : {}", self.worker_count);
-        println!("  Packets   : {}", self.total_packets_processed);
-        println!("  Events    : {}", self.total_events_emitted);
-        println!("  Flows     : {} (across all workers)", self.total_flows_created);
-        if let Some(dur) = self.session_duration {
-            let secs = dur.as_secs_f64();
-            if secs > 0.0 {
-                println!("  Duration  : {:.1}s  ({:.0} pps avg)", secs, self.avg_packets_per_second);
-            }
-        }
-        if self.total_upstream_drops > 0 {
-            println!("  Drops     : {} (queue full)", self.total_upstream_drops);
-        }
-        if self.per_worker_packets.len() > 1 {
-            println!("{}", dsep);
-            println!("  Worker Distribution (balance: {:.2}):", self.load_balance_ratio);
-            for (i, pkts) in self.per_worker_packets.iter().enumerate() {
-                println!("    Worker {:>2}   {} pkts", i, pkts);
-            }
-        }
-        println!("{}", sep);
-        println!();
-    }
 }

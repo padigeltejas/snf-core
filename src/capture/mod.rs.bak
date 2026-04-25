@@ -177,13 +177,6 @@ fn run_pcap_file(
         let stats = pool.shutdown();
         merge_worker_shards(&output_path, num_workers);
         snf_log!(config, "[SNF] {}", stats.summary_line());
-        if !config.is_stealth() {
-            stats.print_final_summary(
-                config.operation_mode.as_str(),
-                &output_path,
-                &pcap_sha256,
-            );
-        }
     } else {
         let mut engine = CaptureEngine::new(config, &output_path, &pcap_path, capture_mode, pcap_sha256);
         snf_log!(config, "[SNF] Replaying PCAP...");
@@ -271,13 +264,6 @@ fn run_live_capture(
         let stats = pool.shutdown();
         merge_worker_shards(&output_path, num_workers);
         snf_log!(config, "[SNF] {}", stats.summary_line());
-        if !config.is_stealth() {
-            stats.print_final_summary(
-                config.operation_mode.as_str(),
-                &output_path,
-                "live",
-            );
-        }
         return;
     }
 

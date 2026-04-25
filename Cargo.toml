@@ -1,4 +1,4 @@
-﻿[package]
+[package]
 name        = "snf-core"
 version     = "1.0.3"
 edition     = "2024"
@@ -6,7 +6,7 @@ authors     = ["Tejas Padigel <padigeltejas@gmail.com>"]
 description = "Deterministic, offline-first network protocol analysis engine."
 license     = "Apache-2.0"
 repository  = "https://github.com/padigeltejas/snf-core"
-homepage    = "https://github.com/padigeltejas/snf-core"
+homepage    = "https://shadownf.com"
 readme      = "README.md"
 keywords    = ["network-forensics", "pcap", "dfir", "passive-ndr", "ics-scada"]
 categories  = ["network-programming", "command-line-utilities"]

@@ -390,7 +390,11 @@ impl PacketPipeline {
             println!("Server: {}:{}", ctx.dst_ip, ctx.dst_port);
             println!("Service: {}", service);
             if let Some(domain) = &ctx.dns_domain {
-                println!("Domain: {}", domain);
+                // Sanitize non-printable / non-ASCII bytes before display.
+                let safe: String = domain.chars().map(|c| {
+                    if c.is_ascii_graphic() || c == ' ' || c == '.' { c } else { '?' }
+                }).collect();
+                println!("Domain: {}", safe);
             }
             println!("{}", "-".repeat(72));
         }

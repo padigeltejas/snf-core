@@ -71,6 +71,8 @@ fn main() {
 
     load_snf_toml();
 
+    println!("SNF-Core — Shadow Network Fingerprinting Engine");
+
     let args = parse_cli();
 
     if args.help    { print_help();    return; }
@@ -87,21 +89,15 @@ fn main() {
 
     let mut config = builder.validate_and_build(false);
 
-    // Gate all startup console output on non-stealth mode.
-    let silent = config.is_stealth();
-    if !silent {
-        println!("SNF-Core — Shadow Network Fingerprinting Engine");
-    }
-
     let ports_db = ports::load_ports();
-    if !silent { println!("Loaded {} ports", ports_db.len()); }
+    println!("Loaded {} ports", ports_db.len());
 
     let ja3_db = load_ja3_database();
-    if !silent { println!("Loaded {} JA3 fingerprints", ja3_db.len()); }
+    println!("Loaded {} JA3 fingerprints", ja3_db.len());
     config.ja3_db = ja3_db;
 
     let ja4_db = load_ja4_database();
-    if !silent { println!("Loaded {} JA4 fingerprints", ja4_db.len()); }
+    println!("Loaded {} JA4 fingerprints", ja4_db.len());
     config.ja4_db = ja4_db;
 
     if args.determinism_check {

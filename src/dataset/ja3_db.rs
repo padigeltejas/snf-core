@@ -30,6 +30,5 @@ pub fn load_ja3_database() -> HashMap<String, String> {
             map.insert(cols[0].trim().to_string(), cols[1].trim().to_string());
         }
     }
-    eprintln!("[SNF] Loaded {} JA3 fingerprints", map.len());
     map
 }

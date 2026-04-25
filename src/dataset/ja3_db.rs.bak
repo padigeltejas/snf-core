@@ -1,18 +1,18 @@
-// ja4_db.rs
-// Loads JA4 fingerprint database into memory at startup.
-// Returns empty map (with warning) if the CSV is missing — JA4 lookups
+// ja3_db.rs
+// Loads JA3 fingerprint database into memory at startup.
+// Returns empty map (with warning) if the CSV is missing — JA3 lookups
 // are disabled but SNF continues running normally.
 
 use std::collections::HashMap;
 use std::io::BufRead;
 
-pub fn load_ja4_database() -> HashMap<String, String> {
-    let path = "datasets/ja4/ja4_fingerprints.csv";
+pub fn load_ja3_database() -> HashMap<String, String> {
+    let path = "datasets/ja3/ja3_fingerprints.csv";
     let file = match std::fs::File::open(path) {
         Ok(f) => f,
         Err(e) => {
             eprintln!(
-                "[SNF] Warning: JA4 database not found at '{}': {} — JA4 lookups disabled",
+                "[SNF] Warning: JA3 database not found at '{}': {} — JA3 lookups disabled",
                 path, e
             );
             return HashMap::new();
@@ -30,5 +30,6 @@ pub fn load_ja4_database() -> HashMap<String, String> {
             map.insert(cols[0].trim().to_string(), cols[1].trim().to_string());
         }
     }
+    eprintln!("[SNF] Loaded {} JA3 fingerprints", map.len());
     map
 }

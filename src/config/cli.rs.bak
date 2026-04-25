@@ -1,6 +1,6 @@
 // src/config/cli.rs
 //
-// SNF Command Line Interface  --  argument parsing and help text.
+// SNF Command Line Interface — argument parsing and help text.
 //
 // Phase 4:  expanded from 7 to 40+ flags covering all 7 engine layers.
 // Phase 13D: added --dry-run, --determinism-check, --keep-determinism-files,
@@ -295,7 +295,7 @@ pub fn parse_cli() -> CliArgs {
             "--dump-raw"                  => { a.dump_raw = true;       }
 
             // ----------------------------------------------------------------
-            // PHASE 13D  --  DRY-RUN
+            // PHASE 13D — DRY-RUN
             // ----------------------------------------------------------------
 
             // --dry-run: validate config + all file paths, print summary, exit.
@@ -305,7 +305,7 @@ pub fn parse_cli() -> CliArgs {
             }
 
             // ----------------------------------------------------------------
-            // PHASE 13B  --  DETERMINISM CHECK
+            // PHASE 13B — DETERMINISM CHECK
             // ----------------------------------------------------------------
 
             // --determinism-check: run two PCAP replay passes and SHA-256 compare.
@@ -348,7 +348,7 @@ use super::builder::ConfigBuilder;
 use super::mode::OperationMode;
 
 pub fn apply_cli_to_builder(args: &CliArgs) -> ConfigBuilder {
-    // Select base mode  --  explicit --mode wins, then legacy flags, then default.
+    // Select base mode — explicit --mode wins, then legacy flags, then default.
     let mut builder = if let Some(ref mode_str) = args.mode {
         match OperationMode::from_str(mode_str) {
             Some(OperationMode::Forensic) => ConfigBuilder::forensic(),
@@ -475,13 +475,13 @@ fn next_arg(args: &[String], i: &mut usize) -> Option<String> {
 pub fn print_help() {
     println!(
         r#"
-SNF  --  Shadow Network Fingerprinting Engine
+SNF — Shadow Network Fingerprinting Engine
 ==========================================
 Passive network intelligence: traffic fingerprinting, device discovery,
 protocol analysis, threat scoring, and behavioral anomaly detection.
 Designed for air-gapped, ICS/SCADA, DFIR, and regulated enterprise environments.
 
-SNF v0.1  --  Author: Tejas Padigel
+SNF v0.1 — Author: Tejas Padigel
 
 USAGE
 -----
@@ -495,16 +495,16 @@ USAGE
 
 OPERATION MODES
 ---------------
-  --forensic          Full depth  --  all analyzers, all events, max verbosity.
+  --forensic          Full depth — all analyzers, all events, max verbosity.
                       Intended for DFIR and post-incident analysis.
 
-  --monitor           Lightweight 24/7 SOC mode  --  flow-level visibility,
+  --monitor           Lightweight 24/7 SOC mode — flow-level visibility,
                       suppressed noisy events. Good for continuous deployment.
 
-  --stealth           Minimal footprint  --  no console output, passive only.
+  --stealth           Minimal footprint — no console output, passive only.
                       Intended for covert sensor deployments.
 
-  --replay            Deterministic PCAP replay  --  identical output every run.
+  --replay            Deterministic PCAP replay — identical output every run.
                       Requires --pcap-file. Single-threaded.
 
   --mode <name>       Explicit mode flag. Same as above flags.
@@ -661,7 +661,7 @@ EXAMPLES
 }
 
 pub fn print_version() {
-    println!("SNF  --  Shadow Network Fingerprinting Engine");
+    println!("SNF — Shadow Network Fingerprinting Engine");
     println!("Version : 0.1.0");
     println!("Author  : Tejas Padigel");
     println!("Target  : Air-gapped defense / ICS / DFIR / Regulated enterprise");

@@ -406,7 +406,6 @@ impl ConfigBuilder {
 
             // profile.summary() contains "Hardware: X CPUs ... → N workers / ..."
             // We rebuild the line from scratch using profile fields + actual config.
-            if self.mode != OperationMode::Stealth {
             eprintln!(
                 "[SNF] Hardware: {} CPUs ({}), {} MB RAM, NUMA={}, {} → \
                  {} workers / batch={} / ring={} / zero_copy={}{}",
@@ -421,18 +420,10 @@ impl ConfigBuilder {
                 zero_copy,
                 scale_note,
             );
-            } // end !stealth hardware probe
         }
 
         let result = validate_config(&self.config, &self.mode, dry_run);
-        // In stealth mode: suppress non-fatal warnings; fatal errors still shown.
-        let cfg_valid = if self.mode == OperationMode::Stealth {
-            for e in &result.errors { eprintln!("[SNF ERROR] {}", e); }
-            result.is_valid()
-        } else {
-            result.report()
-        };
-        if !cfg_valid {
+        if !result.report() {
             eprintln!("\n[SNF] Configuration validation failed. Aborting.");
             std::process::exit(1);
         }

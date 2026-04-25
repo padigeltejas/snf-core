@@ -153,7 +153,7 @@ impl SessionReporter {
         config:               &EngineConfig,
     ) -> bool {
         // Stealth mode: never print anything.
-        if config.is_stealth() || config.is_replay() { return false; }
+        if config.is_stealth() { return false; }
 
         // Not enough time elapsed.
         if current_timestamp_us.saturating_sub(self.last_report_us)

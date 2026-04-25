@@ -33,3 +33,6 @@ SNF_Master_Context_v8.md
 copilotconvo.txt
 output/
 snf_core_dump.txt
+
+*.bak
+*.py

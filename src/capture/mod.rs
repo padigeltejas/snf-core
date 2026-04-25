@@ -64,6 +64,12 @@ fn merge_worker_shards(output_path: &str, num_workers: usize) {
 
 fn default_output_path(config: &EngineConfig) -> String {
     if let Some(ref p) = config.output.ndjson_output_path { return p.clone(); }
+    // SNF_RUN_DIR is set once in run_capture() — use it for a consistent
+    // timestamped path across all calls in the same session.
+    if let Ok(run_dir) = std::env::var("SNF_RUN_DIR") {
+        let ts = std::env::var("SNF_RUN_TS").unwrap_or_else(|_| "session".to_string());
+        return format!("{}/snf_output_{}.ndjson", run_dir.trim_end_matches('/'), ts);
+    }
     if let Ok(dir) = std::env::var("SNF_OUTPUT_DIR") {
         return format!("{}/snf_output.ndjson", dir.trim_end_matches('/'));
     }
@@ -86,6 +92,22 @@ fn hash_pcap_file(path: &str) -> String {
 // ── Public entry point ────────────────────────────────────────────────────────
 
 pub fn run_capture(ports_db: &HashMap<u16, String>, config: &EngineConfig) {
+    // ── Timestamped run directory ─────────────────────────────────────────────
+    // Generate run_<timestamp> subfolder ONCE before any threads spawn.
+    // All calls to default_output_path() read SNF_RUN_DIR for consistency.
+    {
+        use chrono::Local;
+        let ts      = Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
+        let base    = std::env::var("SNF_OUTPUT_DIR").unwrap_or_else(|_| "output".to_string());
+        let run_dir = format!("{}/run_{}", base.trim_end_matches('/'), ts);
+        let _       = std::fs::create_dir_all(&run_dir);
+        // SAFETY: called before any threads are spawned.
+        unsafe {
+            std::env::set_var("SNF_RUN_DIR", &run_dir);
+            std::env::set_var("SNF_RUN_TS",  &ts);
+        }
+    }
+
     if config.is_replay() && config.performance.worker_threads != 1 {
         eprintln!("[SNF] Fatal: Replay mode requires worker_threads=1 for determinism.");
         std::process::exit(1);
@@ -484,6 +506,12 @@ impl CaptureEngine {
             }
             _ => {
                 println!("[SNF] Session complete - {} packets -> {}", self.packet_count, output_path);
+                // Print the end-of-run summary box (non-stealth, non-replay only).
+                self.session_reporter.print_final_summary(
+                    self.last_timestamp_us,
+                    config.operation_mode.as_str(),
+                    output_path,
+                );
             }
         }
     }

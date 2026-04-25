@@ -322,14 +322,14 @@ impl PacketPipeline {
                 dns_cache.insert(ctx.src_ip, ptr.clone());
             }
 
-            // Phase 9F: DNS response received -------- rebind immediately so flows
+            // Phase 9F: DNS response received Ã¢â‚¬â€ rebind immediately so flows
             // waiting on this domain get attributed without delay.
             // This is the primary trigger; the background sweep below is a
             // safety net for edge cases (e.g. DoH where DNS bypasses this path).
             flow_table.rebind_domains(dns_cache, &analyzer_manager.rdns_cache);
         }
 
-        // ---------------- DHCP LEASE -------- DEVICE BINDING ----------------
+        // ---------------- DHCP LEASE Ã¢â€ â€™ DEVICE BINDING ----------------
         if config.protocol.enable_dhcp {
             if let Some(ref msg_type) = ctx.dhcp_msg_type.clone() {
                 if msg_type == "ACK" || msg_type == "OFFER" {
@@ -342,7 +342,7 @@ impl PacketPipeline {
                             dns_cache.insert(assigned_ip, label.to_string());
                             if config.output.show_dhcp_logs {
                                 println!(
-                                    "[DHCP] Bound: {} -------- {} ({})",
+                                    "[DHCP] Bound: {} Ã¢â€ â€™ {} ({})",
                                     assigned_ip, label, msg_type,
                                 );
                             }
@@ -371,7 +371,7 @@ impl PacketPipeline {
         // ---------------- PHASE 9F: BACKGROUND REBIND SWEEP ----------------
         // Safety net for flows that gained domain info from non-DNS paths
         // (e.g. TLS SNI, HTTP Host) or when DNS was processed via DoH.
-        // O(f) cost is acceptable -------- runs at most once every 1000 packets.
+        // O(f) cost is acceptable Ã¢â‚¬â€ runs at most once every 1000 packets.
         if self.packet_counter % REBIND_INTERVAL_PACKETS == 0 {
             flow_table.rebind_domains(dns_cache, &analyzer_manager.rdns_cache);
         }
@@ -385,14 +385,14 @@ impl PacketPipeline {
         // ---------------- PACKET LOGGING ----------------
        // ---------------- PACKET LOGGING ----------------
         if config.output.show_packet_logs {
-            println!("{}", "-".repeat(72));
+            println!("Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬");
             println!("Client: {}:{}", ctx.src_ip, ctx.src_port);
             println!("Server: {}:{}", ctx.dst_ip, ctx.dst_port);
             println!("Service: {}", service);
             if let Some(domain) = &ctx.dns_domain {
                 println!("Domain: {}", domain);
             }
-            println!("{}", "-".repeat(72));
+            println!("Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬");
         }
 
         // ---------------- PERIODIC CLEANUP ----------------
@@ -681,7 +681,7 @@ impl PacketPipeline {
             }
         }
 
-        // ---- LAN DISCOVERY (LLDP / CDP) - Phase 18 ----
+        // ---- LAN DISCOVERY (LLDP / CDP) — Phase 18 ----
         if config.protocol.enable_lan {
             // LLDP
             if ctx.lldp_chassis_id.is_some() || ctx.lldp_system_name.is_some() {

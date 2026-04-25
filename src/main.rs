@@ -48,6 +48,20 @@ fn load_snf_toml() {
 }
 
 fn main() {
+    // ── Windows: force console to UTF-8 so box-drawing chars render correctly ──
+    #[cfg(windows)]
+    {
+        unsafe extern "system" {
+            fn SetConsoleOutputCP(wCodePageID: u32) -> i32;
+            fn SetConsoleCP(wCodePageID: u32) -> i32;
+        }
+        // SAFETY: called at program start, before any threads spawn.
+        unsafe {
+            SetConsoleOutputCP(65001); // CP_UTF8
+            SetConsoleCP(65001);       // CP_UTF8
+        }
+    }
+
     // No args: print help and exit cleanly
     if std::env::args().count() == 1 {
         println!("SNF-Core — Shadow Network Fingerprinting Engine");

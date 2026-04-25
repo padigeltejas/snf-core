@@ -221,4 +221,75 @@ impl SessionReporter {
 
         println!("└───────────────────────────────────────────────────────────────┘");
     }
+    /// Print a structured summary box at the END of a capture session.
+    ///
+    /// Called once from CaptureEngine::shutdown() after all packets are processed.
+    /// Suppressed in Stealth mode (shutdown() never calls this in stealth).
+    pub fn print_final_summary(&self, end_timestamp_us: u64, mode: &str, output_path: &str) {
+        let elapsed_secs = end_timestamp_us
+            .saturating_sub(self.session_start_us)
+            .saturating_div(1_000_000);
+        let pps = if elapsed_secs > 0 { self.packets / elapsed_secs } else { self.packets };
+
+        let sep = "=".repeat(62);
+        println!();
+        println!("{}", sep);
+        println!("  SNF-Core  |  Session Complete");
+        println!("{}", sep);
+        println!("  Mode      : {}", mode);
+        println!("  Output    : {}", output_path);
+        println!("{}", "-".repeat(62));
+        println!("  Packets   : {}", self.packets);
+        println!("  Events    : {}", self.events);
+        println!("  Flows     : {}", self.active_flows);
+        if elapsed_secs > 0 {
+            println!("  Duration  : {}s  ({} pps avg)", elapsed_secs, pps);
+        }
+        if self.capture_drops > 0 {
+            println!("  Drops     : {} (queue/ring full)", self.capture_drops);
+        }
+
+        // Protocol / event-type breakdown
+        if !self.event_type_counts.is_empty() {
+            println!("{}", "-".repeat(62));
+            println!("  Protocol Breakdown (top 8):");
+            let mut types: Vec<(&String, &u64)> = self.event_type_counts.iter().collect();
+            types.sort_by(|a, b| b.1.cmp(a.1));
+            for (et, count) in types.iter().take(8) {
+                println!("    {:<38} {:>8}", et, count);
+            }
+        }
+
+        // Top talkers
+        if !self.ip_bytes.is_empty() {
+            println!("{}", "-".repeat(62));
+            println!("  Top Source IPs (by bytes):");
+            let mut talkers: Vec<(std::net::IpAddr, u64)> =
+                self.ip_bytes.iter().map(|(&ip, &b)| (ip, b)).collect();
+            talkers.sort_by(|a, b| b.1.cmp(&a.1));
+            for (ip, bytes) in talkers.iter().take(5) {
+                let kb = bytes / 1024;
+                if kb > 0 {
+                    println!("    {:<38} {:>8} KB", ip, kb);
+                } else {
+                    println!("    {:<38} {:>8} B", ip, bytes);
+                }
+            }
+        }
+
+        // Behavior/anomaly findings
+        if !self.finding_counts.is_empty() {
+            println!("{}", "-".repeat(62));
+            println!("  Findings:");
+            let mut findings: Vec<(&String, &u64)> = self.finding_counts.iter().collect();
+            findings.sort_by(|a, b| b.1.cmp(a.1));
+            for (f, count) in findings.iter() {
+                println!("    {:<38} {:>8} alerts", f, count);
+            }
+        }
+
+        println!("{}", sep);
+        println!();
+    }
+
 }

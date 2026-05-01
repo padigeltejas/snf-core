@@ -56,23 +56,20 @@ pub fn analyze(
     // ---------------- SSDP / UPnP ----------------
     let on_ssdp = ctx.src_port == SSDP_PORT || ctx.dst_port == SSDP_PORT;
     if on_ssdp && config.protocol.enable_ssdp {
-        if let Err(e) = parse_ssdp(ctx, payload, config) {
-            if config.output.show_packet_logs {
+        if let Err(e) = parse_ssdp(ctx, payload, config)
+            && config.output.show_packet_logs {
                 println!("[SSDP] parse error: {}", e);
             }
-        }
         return Ok(());
     }
 
     // ---------------- FTP ----------------
     let on_ftp = ctx.src_port == FTP_PORT || ctx.dst_port == FTP_PORT;
-    if on_ftp && config.protocol.enable_ftp {
-        if let Err(e) = parse_ftp(ctx, payload, config) {
-            if config.output.show_packet_logs {
+    if on_ftp && config.protocol.enable_ftp
+        && let Err(e) = parse_ftp(ctx, payload, config)
+            && config.output.show_packet_logs {
                 println!("[FTP] parse error: {}", e);
             }
-        }
-    }
 
     Ok(())
 }

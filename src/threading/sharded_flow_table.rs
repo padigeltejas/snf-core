@@ -105,8 +105,7 @@ impl ShardedFlowTable {
         // Round up to next power of two for bitmask efficiency.
         let n = num_shards
             .next_power_of_two()
-            .max(MIN_SHARDS)
-            .min(MAX_SHARDS);
+            .clamp(MIN_SHARDS, MAX_SHARDS);
 
         let shard_cap = (config.flow.max_flows / n).max(64);
 

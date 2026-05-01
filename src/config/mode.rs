@@ -17,8 +17,10 @@
 //            must be identical across runs. Intended for reproducible analysis.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Default)]
 pub enum OperationMode {
     /// Full forensic depth — all analyzers, all events, max verbosity.
+    #[default]
     Forensic,
 
     /// Lightweight monitoring — flow-level, reduced event output.
@@ -34,6 +36,7 @@ pub enum OperationMode {
 impl OperationMode {
     /// Parse an operation mode from a string (case-insensitive).
     /// Returns None if the string does not match a known mode.
+#[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "forensic" => Some(Self::Forensic),
@@ -61,8 +64,3 @@ impl std::fmt::Display for OperationMode {
     }
 }
 
-impl Default for OperationMode {
-    fn default() -> Self {
-        Self::Forensic
-    }
-}

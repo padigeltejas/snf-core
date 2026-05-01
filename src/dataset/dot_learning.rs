@@ -18,7 +18,7 @@ pub fn load_learned_dot(path: &str) -> HashMap<String, DotEntry> {
     if let Ok(file) = File::open(path) {
         let reader = BufReader::new(file);
 
-        for line in reader.lines().flatten() {
+        for line in reader.lines().map_while(Result::ok) {
             let parts: Vec<&str> = line.split(',').collect();
 
             if parts.len() != 3 {

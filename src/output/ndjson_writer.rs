@@ -236,7 +236,7 @@ impl NdjsonWriter {
 
         // Periodic flush
         if self.config.flush_interval_events > 0
-            && self.total_events % self.config.flush_interval_events == 0
+            && self.total_events.is_multiple_of(self.config.flush_interval_events)
         {
             self.flush();
         }
@@ -248,15 +248,14 @@ impl NdjsonWriter {
     /// Flush buffered writes to disk.
     /// Called periodically, on rotation, and on shutdown.
     pub fn flush(&mut self) {
-        if let Some(ref mut w) = self.writer {
-            if let Err(e) = w.flush() {
+        if let Some(ref mut w) = self.writer
+            && let Err(e) = w.flush() {
                 eprintln!(
                     "[SNF][NdjsonWriter] Flush error on {}: {}",
                     self.rotation.current_path(&self.config.output_path).display(),
                     e
                 );
             }
-        }
     }
 
     /// Returns total events written across all files this session.
@@ -276,8 +275,8 @@ impl NdjsonWriter {
     /// Write a raw pre-formatted line to the output file.
     /// Appends a newline. No serialization occurs here.
     fn write_raw_line(&mut self, line: &str) {
-        if let Some(ref mut w) = self.writer {
-            if let Err(e) = writeln!(w, "{}", line) {
+        if let Some(ref mut w) = self.writer
+            && let Err(e) = writeln!(w, "{}", line) {
                 eprintln!(
                     "[SNF][NdjsonWriter] Write error on {}: {}",
                     self.rotation.current_path(&self.config.output_path).display(),
@@ -287,7 +286,6 @@ impl NdjsonWriter {
                 // The next write_raw_line call will attempt to reopen.
                 self.writer = None;
             }
-        }
     }
 
     /// Check if rotation thresholds have been exceeded.

@@ -170,8 +170,8 @@ pub fn analyze(
             // rdata = instance name like "My Mac._http._tcp.local"
             12 => {
                 let mut rdata_pos = pos;
-                if let Some(ptr_target) = parse_mdns_name(payload, &mut rdata_pos) {
-                    if !ptr_target.is_empty() && ptr_target.len() <= MAX_NAME_LEN {
+                if let Some(ptr_target) = parse_mdns_name(payload, &mut rdata_pos)
+                    && !ptr_target.is_empty() && ptr_target.len() <= MAX_NAME_LEN {
                         // Phase 15H: extract service type from answer name
                         // Pattern: _<service>._<proto>.local
                         if let Some(svc_type) = extract_service_type(&answer_name) {
@@ -195,7 +195,6 @@ pub fn analyze(
                             );
                         }
                     }
-                }
             }
 
             // SRV (33): service location — port + target hostname
@@ -206,21 +205,19 @@ pub fn analyze(
                     ctx.mdns_srv_port = Some(srv_port);
 
                     let mut srv_pos = pos + 6;
-                    if let Some(srv_target) = parse_mdns_name(payload, &mut srv_pos) {
-                        if !srv_target.is_empty() && srv_target.len() <= MAX_NAME_LEN {
+                    if let Some(srv_target) = parse_mdns_name(payload, &mut srv_pos)
+                        && !srv_target.is_empty() && srv_target.len() <= MAX_NAME_LEN {
                             if config.output.show_packet_logs {
                                 println!("[mDNS] SRV: port={} target={}", srv_port, srv_target);
                             }
                             ctx.mdns_srv_target = Some(srv_target);
                         }
-                    }
 
                     // Also extract service type from SRV owner name if not already set
-                    if ctx.mdns_service_type.is_none() {
-                        if let Some(svc_type) = extract_service_type(&answer_name) {
+                    if ctx.mdns_service_type.is_none()
+                        && let Some(svc_type) = extract_service_type(&answer_name) {
                             ctx.mdns_service_type = Some(svc_type);
                         }
-                    }
                 }
             }
 

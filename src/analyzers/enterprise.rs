@@ -59,11 +59,10 @@ pub fn analyze(
         || ctx.dst_port == KERBEROS_PORT_PRIMARY;
 
     if on_krb && config.protocol.enable_kerberos {
-        if let Err(e) = parse_kerberos(ctx, payload, config) {
-            if config.output.show_packet_logs {
+        if let Err(e) = parse_kerberos(ctx, payload, config)
+            && config.output.show_packet_logs {
                 println!("[Kerberos] parse error: {}", e);
             }
-        }
         return Ok(());
     }
 
@@ -72,24 +71,21 @@ pub fn analyze(
         || ctx.src_port == LDAPS_PORT || ctx.dst_port == LDAPS_PORT;
 
     if on_ldap && config.protocol.enable_ldap {
-        if let Err(e) = parse_ldap(ctx, payload, config) {
-            if config.output.show_packet_logs {
+        if let Err(e) = parse_ldap(ctx, payload, config)
+            && config.output.show_packet_logs {
                 println!("[LDAP] parse error: {}", e);
             }
-        }
         return Ok(());
     }
 
     // ---------------- RDP ----------------
     let on_rdp = ctx.src_port == RDP_PORT || ctx.dst_port == RDP_PORT;
 
-    if on_rdp && config.protocol.enable_rdp {
-        if let Err(e) = parse_rdp(ctx, payload, config) {
-            if config.output.show_packet_logs {
+    if on_rdp && config.protocol.enable_rdp
+        && let Err(e) = parse_rdp(ctx, payload, config)
+            && config.output.show_packet_logs {
                 println!("[RDP] parse error: {}", e);
             }
-        }
-    }
 
     Ok(())
 }
@@ -188,8 +184,8 @@ fn extract_krb_realm_and_principal(
         let content = &scan[pos..pos + len];
 
         // GeneralString (0x1B) or UTF8String (0x0C) — candidate for realm/principal
-        if (tag == 0x1B || tag == 0x0C) && len > 0 && len <= MAX_FIELD_LEN {
-            if let Ok(s) = std::str::from_utf8(content) {
+        if (tag == 0x1B || tag == 0x0C) && len > 0 && len <= MAX_FIELD_LEN
+            && let Ok(s) = std::str::from_utf8(content) {
                 let s = s.trim();
                 if !s.is_empty() {
                     // Heuristic: realm contains only uppercase + dots + hyphens
@@ -215,7 +211,6 @@ fn extract_krb_realm_and_principal(
                     }
                 }
             }
-        }
 
         pos += len;
     }
@@ -643,14 +638,13 @@ fn extract_rdp_cookie(
 
         let cookie_len = cookie_len.min(MAX_RDP_COOKIE_LEN);
 
-        if cookie_len > 0 {
-            if let Ok(cookie) = std::str::from_utf8(&cookie_slice[..cookie_len]) {
+        if cookie_len > 0
+            && let Ok(cookie) = std::str::from_utf8(&cookie_slice[..cookie_len]) {
                 if config.output.show_packet_logs {
                     println!("[RDP] Cookie: mstshash={}", cookie);
                 }
                 ctx.rdp_cookie = Some(cookie.to_string());
             }
-        }
 
         break;
     }

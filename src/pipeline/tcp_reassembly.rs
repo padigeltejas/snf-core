@@ -150,6 +150,12 @@ pub struct TcpReassembler {
     streams: HashMap<StreamKey, StreamState>,
 }
 
+impl Default for TcpReassembler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TcpReassembler {
     pub fn new() -> Self {
         Self {
@@ -171,6 +177,7 @@ impl TcpReassembler {
     ///   timestamp_us — packet timestamp in microseconds since Unix epoch
     ///
     /// Returns a ReassemblyResult describing what the pipeline should do next.
+#[allow(clippy::too_many_arguments)]
     pub fn process_segment(
         &mut self,
         src_ip: IpAddr,

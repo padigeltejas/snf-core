@@ -427,3 +427,6 @@ impl FlowTable {
         // This is fine — evict_one() skips keys not in the HashMap.
     }
 }
+impl Default for FlowTable {
+    fn default() -> Self { Self::new() }
+}

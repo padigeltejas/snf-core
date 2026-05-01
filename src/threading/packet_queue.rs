@@ -222,6 +222,7 @@ pub struct PacketQueue;
 
 impl PacketQueue {
     /// Create a bounded (Tx, Rx) pair with DEFAULT_QUEUE_DEPTH capacity.
+#[allow(clippy::new_ret_no_self)]
     pub fn new() -> (PacketQueueTx, PacketQueueRx) {
         Self::with_capacity(DEFAULT_QUEUE_DEPTH)
     }

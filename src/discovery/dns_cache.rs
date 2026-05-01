@@ -49,18 +49,17 @@ impl DnsCache {
     /// If the cache is full, the oldest entry is evicted (FIFO) before
     /// inserting the new one. This keeps memory strictly bounded.
     pub fn insert(&mut self, ip: IpAddr, domain: String) {
-        if self.table.contains_key(&ip) {
+        if let std::collections::hash_map::Entry::Occupied(mut e) = self.table.entry(ip) {
             // Update existing entry — no change to eviction order.
-            self.table.insert(ip, domain);
+            e.insert(domain);
             return;
         }
 
         // Evict oldest entry if at capacity.
-        if self.table.len() >= self.max_size {
-            if let Some(oldest_ip) = self.order.pop_front() {
+        if self.table.len() >= self.max_size
+            && let Some(oldest_ip) = self.order.pop_front() {
                 self.table.remove(&oldest_ip);
             }
-        }
 
         // Insert new entry and record in eviction queue.
         self.order.push_back(ip);
@@ -86,4 +85,7 @@ impl DnsCache {
     pub fn is_empty(&self) -> bool {
         self.table.is_empty()
     }
+}
+impl Default for DnsCache {
+    fn default() -> Self { Self::new() }
 }

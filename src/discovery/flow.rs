@@ -124,3 +124,6 @@ impl FlowKey {
         }
     }
 }
+impl Default for FlowTable {
+    fn default() -> Self { Self::new() }
+}

@@ -57,7 +57,7 @@ pub fn analyze(
 
     let looks_like_tls = payload[0] == 0x16
         && payload[1] == 0x03
-        && matches!(payload[2], 0x01 | 0x02 | 0x03 | 0x04);
+        && matches!(payload[2], 0x01..=0x04);
 
     if !on_known_tls_port && !looks_like_tls {
         return Ok(());
@@ -236,9 +236,7 @@ pub fn analyze(
         match ext_type {
             // SNI (0x0000)
             0x0000 => {
-                if let Err(e) = extract_sni(ctx, payload, pos, ext_end, config) {
-                    return Err(e);
-                }
+                extract_sni(ctx, payload, pos, ext_end, config)?
             }
 
             // ALPN (0x0010)
@@ -504,11 +502,10 @@ fn parse_server_hello(flow: &mut Flow, record: &[u8], config: &EngineConfig) {
                     if ap < ext_end && list_len > 0 {
                         let proto_len = record[ap] as usize;
                         ap += 1;
-                        if ap + proto_len <= ext_end && proto_len > 0 && proto_len <= MAX_ALPN_PROTO_LEN {
-                            if let Ok(proto) = std::str::from_utf8(&record[ap..ap + proto_len]) {
+                        if ap + proto_len <= ext_end && proto_len > 0 && proto_len <= MAX_ALPN_PROTO_LEN
+                            && let Ok(proto) = std::str::from_utf8(&record[ap..ap + proto_len]) {
                                 flow.alpn = Some(proto.to_string());
                             }
-                        }
                     }
                 }
             }
@@ -611,8 +608,8 @@ fn parse_tls_certificate(
 
         // Only extract detailed fields from the leaf (first) cert.
         // Intermediate and root certs are counted but not fully parsed.
-        if cert_index == 1 {
-            if let Ok((_, cert)) = parse_x509_certificate(cert_bytes) {
+        if cert_index == 1
+            && let Ok((_, cert)) = parse_x509_certificate(cert_bytes) {
                 // Risk scoring
                 // Certificate risk scoring available in the commercial edition
 
@@ -660,8 +657,8 @@ fn parse_tls_certificate(
                     }
                 }
 
-                if let Some(ref cn) = ctx.tls_cert_cn {
-                    if config.output.show_tls_logs {
+                if let Some(ref cn) = ctx.tls_cert_cn
+                    && config.output.show_tls_logs {
                         println!(
                             "[TLS] CERT CN={} issuer={} self_signed={} expired={} chain_depth={}",
                             cn,
@@ -671,9 +668,7 @@ fn parse_tls_certificate(
                             cert_index,
                         );
                     }
-                }
             }
-        }
     }
 
     // Phase 15B: record total chain depth observed

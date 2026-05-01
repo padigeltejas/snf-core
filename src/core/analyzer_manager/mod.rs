@@ -49,30 +49,22 @@ impl AnalyzerManager {
     ) -> Vec<SnfParseError> {
         let mut errors: Vec<SnfParseError> = Vec::new();
 
-        if config.protocol.enable_dns {
-            if let Err(e) = dns::analyze(ctx, payload, dns_cache, config) { errors.push(e); }
-        }
-        if config.protocol.enable_tls {
-            if let Err(e) = tls::analyze(ctx, payload, flow, dns_cache, config) { errors.push(e); }
-        }
-        if config.protocol.enable_quic {
-            if let Err(e) = quic::analyze(ctx, payload, dns_cache, config) { errors.push(e); }
-        }
-        if config.protocol.enable_http {
-            if let Err(e) = HttpAnalyzer::analyze(ctx, payload, dns_cache, config) { errors.push(e); }
-        }
-        if config.protocol.enable_dhcp || config.protocol.enable_dhcpv6 {
-            if let Err(e) = dhcp::analyze(ctx, payload, config) { errors.push(e); }
-        }
-        if config.protocol.enable_icmp {
-            if let Err(e) = icmp::analyze(ctx, payload, config) { errors.push(e); }
-        }
-        if config.protocol.enable_smb {
-            if let Err(e) = smb::analyze(ctx, payload, config) { errors.push(e); }
-        }
-        if config.protocol.enable_mdns {
-            if let Err(e) = mdns::analyze(ctx, payload, config) { errors.push(e); }
-        }
+        if config.protocol.enable_dns
+            && let Err(e) = dns::analyze(ctx, payload, dns_cache, config) { errors.push(e); }
+        if config.protocol.enable_tls
+            && let Err(e) = tls::analyze(ctx, payload, flow, dns_cache, config) { errors.push(e); }
+        if config.protocol.enable_quic
+            && let Err(e) = quic::analyze(ctx, payload, dns_cache, config) { errors.push(e); }
+        if config.protocol.enable_http
+            && let Err(e) = HttpAnalyzer::analyze(ctx, payload, dns_cache, config) { errors.push(e); }
+        if (config.protocol.enable_dhcp || config.protocol.enable_dhcpv6)
+            && let Err(e) = dhcp::analyze(ctx, payload, config) { errors.push(e); }
+        if config.protocol.enable_icmp
+            && let Err(e) = icmp::analyze(ctx, payload, config) { errors.push(e); }
+        if config.protocol.enable_smb
+            && let Err(e) = smb::analyze(ctx, payload, config) { errors.push(e); }
+        if config.protocol.enable_mdns
+            && let Err(e) = mdns::analyze(ctx, payload, config) { errors.push(e); }
         if let Some(domain) = &flow.domain {
             let indicators = DohIndicators {
                 domain,
@@ -93,12 +85,10 @@ impl AnalyzerManager {
         if let (Some(domain), Some(resolved_ip)) = (&ctx.dns_query_name, &ctx.dns_resolved_ip) {
             self.rdns_cache.learn(*resolved_ip, domain.clone());
         }
-        if config.protocol.enable_kerberos || config.protocol.enable_ldap || config.protocol.enable_rdp {
-            if let Err(e) = enterprise::analyze(ctx, payload, config) { errors.push(e); }
-        }
-        if config.protocol.enable_ssdp || config.protocol.enable_ftp {
-            if let Err(e) = discovery::analyze(ctx, payload, config) { errors.push(e); }
-        }
+        if (config.protocol.enable_kerberos || config.protocol.enable_ldap || config.protocol.enable_rdp)
+            && let Err(e) = enterprise::analyze(ctx, payload, config) { errors.push(e); }
+        if (config.protocol.enable_ssdp || config.protocol.enable_ftp)
+            && let Err(e) = discovery::analyze(ctx, payload, config) { errors.push(e); }
         errors
     }
 }

@@ -55,6 +55,7 @@
 
 /// Core affinity assignment for the SNF process.
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct CoreAffinityConfig {
     /// CPU core for the capture thread. None = OS decides (no pinning).
     pub capture_thread_cpu: Option<usize>,
@@ -67,15 +68,6 @@ pub struct CoreAffinityConfig {
     pub enabled: bool,
 }
 
-impl Default for CoreAffinityConfig {
-    fn default() -> Self {
-        Self {
-            capture_thread_cpu: None,
-            worker_cpus:        Vec::new(),
-            enabled:            false,
-        }
-    }
-}
 
 impl CoreAffinityConfig {
     /// Build a CoreAffinityConfig for N workers given a starting CPU offset.

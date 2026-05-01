@@ -140,7 +140,7 @@ impl RingBufferConfig {
     pub fn validate(&self) -> Result<(), String> {
         const PAGE_SIZE: usize = 4_096;
 
-        if self.block_size_bytes % PAGE_SIZE != 0 {
+        if !self.block_size_bytes.is_multiple_of(PAGE_SIZE) {
             return Err(format!(
                 "block_size_bytes ({}) must be a multiple of PAGE_SIZE ({})",
                 self.block_size_bytes, PAGE_SIZE

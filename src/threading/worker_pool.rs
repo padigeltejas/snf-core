@@ -69,7 +69,7 @@ impl WorkerPool {
         }
 
         let queue_depth = config.performance.event_queue_size.max(DEFAULT_QUEUE_DEPTH);
-        let batch_size  = config.performance.packet_batch_size.max(1).min(256);
+        let batch_size  = config.performance.packet_batch_size.clamp(1, 256);
 
         let mut pool = Self {
             workers:             Vec::with_capacity(num_workers),
@@ -299,6 +299,7 @@ fn run_worker(
 
 // ── Per-packet processing ─────────────────────────────────────────────────────
 
+#[allow(clippy::too_many_arguments)]
 fn process_raw_packet(
     raw:              &RawPacket,
     timestamp_us:     u64,
@@ -326,7 +327,7 @@ fn process_raw_packet(
     };
 
     if let Some(net) = sliced.net {
-        let (src_ip, dst_ip) = match &net {
+        let (src_ip_addr, dst_ip_addr) = match &net {
             NetSlice::Ipv4(h) => (
                 IpAddr::V4(h.header().source_addr()),
                 IpAddr::V4(h.header().destination_addr()),
@@ -335,7 +336,11 @@ fn process_raw_packet(
                 IpAddr::V6(h.header().source_addr()),
                 IpAddr::V6(h.header().destination_addr()),
             ),
+            NetSlice::Arp(_) => return, // ARP has no IP src/dst — skip
         };
+
+        let src_ip = src_ip_addr.to_string();
+        let dst_ip = dst_ip_addr.to_string();
 
         if let Some(transport) = sliced.transport {
             match transport {
@@ -345,8 +350,7 @@ fn process_raw_packet(
                     let payload  = tcp.payload();
                     let tcp_seq  = Some(tcp.sequence_number());
                     let mut ctx  = PacketContextBuilder::build(
-                        src_ip.to_string(), dst_ip.to_string(),
-                        src_port, dst_port,
+                        src_ip, dst_ip, src_port, dst_port,
                         "TCP".to_string(), raw.wire_len as usize, timestamp_us,
                     );
                     pipeline.process_packet(
@@ -354,15 +358,13 @@ fn process_raw_packet(
                         flow_table, dns_cache, ports_db,
                         analyzer_manager, event_bus,
                     );
-
                 }
                 TransportSlice::Udp(udp) => {
                     let src_port = udp.source_port();
                     let dst_port = udp.destination_port();
                     let payload  = udp.payload();
                     let mut ctx  = PacketContextBuilder::build(
-                        src_ip.to_string(), dst_ip.to_string(),
-                        src_port, dst_port,
+                        src_ip, dst_ip, src_port, dst_port,
                         "UDP".to_string(), raw.wire_len as usize, timestamp_us,
                     );
                     pipeline.process_packet(
@@ -371,11 +373,10 @@ fn process_raw_packet(
                         analyzer_manager, event_bus,
                     );
                 }
-                TransportSlice::Icmpv4(icmp) => {
+               TransportSlice::Icmpv4(icmp) => {
                     if config.protocol.enable_icmp {
                         let mut ctx = PacketContextBuilder::build(
-                            src_ip.to_string(), dst_ip.to_string(),
-                            0, 0,
+                            src_ip, dst_ip, 0, 0,
                             "ICMP".to_string(), raw.wire_len as usize, timestamp_us,
                         );
                         ctx.icmp_type = Some(icmp.type_u8());
@@ -387,8 +388,21 @@ fn process_raw_packet(
                         );
                     }
                 }
-                _ => {}
-            }
+                TransportSlice::Icmpv6(_icmp) => {
+                    if config.protocol.enable_icmp {
+                        let mut ctx = PacketContextBuilder::build(
+                            src_ip, dst_ip, 0, 0,
+                            "ICMPv6".to_string(), raw.wire_len as usize, timestamp_us,
+                        );
+                        pipeline.process_packet(
+                            &mut ctx, &[], None, config,
+                            flow_table, dns_cache, ports_db,
+                            analyzer_manager, event_bus,
+                        );
+                    }
+                }
+              
+                }
         }
     }
 }

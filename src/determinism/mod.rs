@@ -109,7 +109,7 @@ fn sha256_file(path: &str) -> Result<String, String> {
         }
     }
 
-    Ok(format!("{:x}", hasher.finalize()))
+    Ok(hasher.finalize().iter().map(|b| format!("{:02x}", b)).collect::<String>())
 }
 
 /// Count non-empty lines in a file. Used to report approximate event counts.

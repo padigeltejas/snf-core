@@ -202,11 +202,10 @@ pub fn analyze(
                     // Option 12: Host Name
                     12 => {
                         let len = opt_len.min(MAX_HOSTNAME_LEN);
-                        if let Ok(hostname) = std::str::from_utf8(&opt_data[..len]) {
-                            if !hostname.is_empty() {
+                        if let Ok(hostname) = std::str::from_utf8(&opt_data[..len])
+                            && !hostname.is_empty() {
                                 ctx.dhcp_hostname = Some(hostname.to_string());
                             }
-                        }
                     }
 
                     // Option 50: Requested IP Address (4 bytes)
@@ -228,11 +227,10 @@ pub fn analyze(
                     // Option 60: Vendor Class Identifier
                     60 => {
                         let len = opt_len.min(MAX_VENDOR_CLASS_LEN);
-                        if let Ok(vendor) = std::str::from_utf8(&opt_data[..len]) {
-                            if !vendor.is_empty() {
+                        if let Ok(vendor) = std::str::from_utf8(&opt_data[..len])
+                            && !vendor.is_empty() {
                                 ctx.dhcp_vendor_class = Some(vendor.to_string());
                             }
-                        }
                     }
 
                     // Phase 15E: Option 82 — Relay Agent Information

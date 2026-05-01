@@ -78,11 +78,10 @@ impl EventBus {
     /// Flush all buffered writes to disk.
     /// Must be called on clean shutdown and periodically for long captures.
     pub fn flush(&mut self) {
-        if let Some(ref mut w) = self.writer {
-            if let Err(e) = w.flush() {
+        if let Some(ref mut w) = self.writer
+            && let Err(e) = w.flush() {
                 eprintln!("[SNF][EventBus] Flush error on {}: {}", self.output_path, e);
             }
-        }
     }
 
     /// Returns the total number of events emitted this session.

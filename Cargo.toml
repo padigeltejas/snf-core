@@ -1,6 +1,6 @@
 [package]
 name        = "snf-core"
-version     = "1.0.4"
+version     = "1.0.5"
 edition     = "2024"
 authors     = ["Tejas Padigel <padigeltejas@gmail.com>"]
 description = "Deterministic, offline-first network protocol analysis engine."
@@ -14,15 +14,15 @@ default-run = "snf-core"
 exclude     = ["snf.toml", "datasets/", "docs/", "Cargo.lock"]
 
 [dependencies]
-pcap               = "1.3"
-etherparse         = "0.14"
-x509-parser        = "0.15"
-md5                = "0.7"
+pcap               = "2.4"
+etherparse         = "0.20"
+x509-parser        = "0.18"
+md5                = "0.8"
 lazy_static        = "1.4"
-dirs               = "5"
+dirs               = "6"
 chrono             = { version = "0.4", features = ["clock"] }
 memmap2            = "0.9"
-sha2               = "0.10"
+sha2               = "0.11"
 ctrlc              = { version = "3", features = ["termination"] }
 crossbeam-channel  = "0.5"
 libc               = "0.2"

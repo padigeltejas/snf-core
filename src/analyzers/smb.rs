@@ -385,7 +385,7 @@ fn parse_smb2_session_setup(
         // NTLMv1 hash = exactly 24 bytes. Pass-the-hash typically uses NTLMv1.
         // NTLMv2 responses are > 24 bytes but can also be used for PtH.
         // Flag both as a PtH indicator for analyst review.
-        if nt_resp_len == 24 || nt_resp_len > 24 {
+        if nt_resp_len >= 24 {
             ctx.smb_pth_indicator = true;
             if config.output.show_packet_logs {
                 println!("[SMB] Pass-the-hash indicator: NTLMSSP AUTH NtRespLen={}", nt_resp_len);

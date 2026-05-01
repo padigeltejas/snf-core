@@ -610,13 +610,12 @@ fn validate_cross_layer_clashes(
     let intel  = &config.intelligence;
 
     // Port 443 filtered but neither TLS nor QUIC enabled
-    if let Some(port) = filter.port_filter {
-        if port == 443 && !proto.enable_tls && !proto.enable_quic {
+    if let Some(port) = filter.port_filter
+        && port == 443 && !proto.enable_tls && !proto.enable_quic {
             r.error("filter.port_filter=443 but both protocol.enable_tls=false and \
                      enable_quic=false. Port 443 traffic would be captured but \
                      not analyzed at all. Enable TLS and/or QUIC.");
         }
-    }
 
     // Domain filter with DNS and flow binding both disabled
     if config.domain_filter.is_some()
@@ -703,8 +702,8 @@ fn validate_dataset_paths(
     // ---- PCAP input file ----
     // Required if capture_mode = "pcap" or mode = Replay. Already caught by
     // validate_capture for the "missing path" case — here we check existence.
-    if config.capture.capture_mode == "pcap" || *mode == OperationMode::Replay {
-        if let Some(ref pcap_path) = config.capture.pcap_file {
+    if (config.capture.capture_mode == "pcap" || *mode == OperationMode::Replay)
+        && let Some(ref pcap_path) = config.capture.pcap_file {
             if !Path::new(pcap_path).exists() {
                 r.error(format!(
                     "PCAP file '{}' does not exist. \
@@ -725,7 +724,6 @@ fn validate_dataset_paths(
                 }
             }
         }
-    }
 
     // ---- NDJSON output path — check parent directory is writable ----
     if let Some(ref out_path) = config.output.ndjson_output_path {

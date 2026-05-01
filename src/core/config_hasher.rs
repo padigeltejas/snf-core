@@ -66,5 +66,5 @@ hasher.update(format!("tls_risk.suspicious_resumption={}\n", config.tls_risk_wei
 hasher.update(format!("tls_risk.zero_rtt_usage={}\n", config.tls_risk_weights().zero_rtt_usage));
 
     // Finalize and return lowercase hex string.
-    format!("{:x}", hasher.finalize())
+    hasher.finalize().iter().map(|b| format!("{:02x}", b)).collect::<String>()
 }

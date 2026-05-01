@@ -15,12 +15,10 @@ pub fn load_learned_doh(path: &str) -> HashSet<String> {
     let file = File::open(path).expect("Failed to open learned DoH file");
     let reader = BufReader::new(file);
 
-    for line in reader.lines() {
-        if let Ok(domain) = line {
-            let domain = domain.trim().to_lowercase();
-            if !domain.is_empty() {
-                set.insert(domain);
-            }
+    for domain in reader.lines().map_while(Result::ok) {
+        let domain = domain.trim().to_lowercase();
+        if !domain.is_empty() {
+            set.insert(domain);
         }
     }
 

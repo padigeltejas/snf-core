@@ -22,20 +22,17 @@ pub fn load_ports() -> HashMap<u16, String> {
     let reader = BufReader::new(file);
 
     // skip CSV header
-    for line in reader.lines().skip(1) {
-        if let Ok(row) = line {
+    for row in reader.lines().skip(1).flatten() {
 
-            let cols: Vec<&str> = row.split(',').collect();
+        let cols: Vec<&str> = row.split(',').collect();
 
-            if cols.len() > 1 {
-                if let Ok(port) = cols[1].parse::<u16>() {
+        if cols.len() > 1
+            && let Ok(port) = cols[1].parse::<u16>() {
 
-                    let service = cols[0].to_string();
+                let service = cols[0].to_string();
 
-                    ports.insert(port, service);
-                }
+                ports.insert(port, service);
             }
-        }
     }
 
     ports

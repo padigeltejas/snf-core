@@ -9,8 +9,10 @@
 
 /// Operating mode for the SNF capture engine.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Default)]
 pub enum CaptureMode {
     /// Live interface capture — continuous packet ingestion from a network device.
+    #[default]
     Realtime,
     /// Offline PCAP file replay — deterministic, court-admissible analysis.
     Pcap,
@@ -23,6 +25,7 @@ pub enum CaptureMode {
 impl CaptureMode {
     /// Parse from a string. Case-insensitive.
     /// Returns None on unrecognized input — caller should emit a config error.
+#[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> Option<Self> {
         match s.to_ascii_lowercase().as_str() {
             "realtime" | "live"     => Some(CaptureMode::Realtime),
@@ -64,11 +67,6 @@ impl CaptureMode {
     }
 }
 
-impl Default for CaptureMode {
-    fn default() -> Self {
-        CaptureMode::Realtime
-    }
-}
 
 impl std::fmt::Display for CaptureMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

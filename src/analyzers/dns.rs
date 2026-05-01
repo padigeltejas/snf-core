@@ -291,11 +291,10 @@ pub fn analyze(
             // ---------------- CNAME RECORD (type 5) ----------------
             5 => {
                 let mut cname_pos = pos;
-                if let Some(cname_target) = parse_dns_name(payload, &mut cname_pos) {
-                    if ctx.dns_cname_chain.len() < MAX_MULTI_RECORDS {
+                if let Some(cname_target) = parse_dns_name(payload, &mut cname_pos)
+                    && ctx.dns_cname_chain.len() < MAX_MULTI_RECORDS {
                         ctx.dns_cname_chain.push(cname_target);
                     }
-                }
             }
 
             // ---------------- MX RECORD (type 15) ----------------
@@ -308,40 +307,36 @@ pub fn analyze(
                     ));
                 }
                 let mut mx_pos = pos + 2; // skip preference (2 bytes)
-                if let Some(mx_exchange) = parse_dns_name(payload, &mut mx_pos) {
-                    if ctx.dns_mx_records.len() < MAX_MULTI_RECORDS {
+                if let Some(mx_exchange) = parse_dns_name(payload, &mut mx_pos)
+                    && ctx.dns_mx_records.len() < MAX_MULTI_RECORDS {
                         ctx.dns_mx_records.push(mx_exchange);
                     }
-                }
             }
 
             // ---------------- NS RECORD (type 2) ----------------
             2 => {
                 let mut ns_pos = pos;
-                if let Some(ns_name) = parse_dns_name(payload, &mut ns_pos) {
-                    if ctx.dns_ns_records.len() < MAX_MULTI_RECORDS {
+                if let Some(ns_name) = parse_dns_name(payload, &mut ns_pos)
+                    && ctx.dns_ns_records.len() < MAX_MULTI_RECORDS {
                         ctx.dns_ns_records.push(ns_name);
                     }
-                }
             }
 
             // ---------------- PTR RECORD (type 12) ----------------
             12 => {
                 let mut ptr_pos = pos;
-                if let Some(ptr_target) = parse_dns_name(payload, &mut ptr_pos) {
-                    if ctx.dns_ptr_record.is_none() {
+                if let Some(ptr_target) = parse_dns_name(payload, &mut ptr_pos)
+                    && ctx.dns_ptr_record.is_none() {
                         ctx.dns_ptr_record = Some(ptr_target);
                     }
-                }
             }
 
             // ---------------- TXT RECORD (type 16) ----------------
             16 => {
-                if ctx.dns_txt_records.len() < MAX_TXT_RECORDS {
-                    if let Some(txt_value) = parse_txt_rdata(payload, pos, pos + rdlength) {
+                if ctx.dns_txt_records.len() < MAX_TXT_RECORDS
+                    && let Some(txt_value) = parse_txt_rdata(payload, pos, pos + rdlength) {
                         ctx.dns_txt_records.push(txt_value);
                     }
-                }
             }
 
             // ---------------- SOA RECORD (type 6) — skip ----------------

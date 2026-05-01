@@ -260,11 +260,10 @@ impl AggregateStats {
         }
 
         // Compute session duration.
-        if let (Some(s), Some(f)) = (earliest_start, latest_finish) {
-            if f > s {
+        if let (Some(s), Some(f)) = (earliest_start, latest_finish)
+            && f > s {
                 agg.session_duration = Some(f.duration_since(s));
             }
-        }
 
         // Derived rates.
         if let Some(dur) = agg.session_duration {

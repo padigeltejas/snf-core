@@ -48,6 +48,12 @@ pub struct PacketPipeline {
     tcp_reassembler: TcpReassembler,
 }
 
+impl Default for PacketPipeline {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PacketPipeline {
     pub fn new() -> Self {
         Self {
@@ -56,6 +62,7 @@ impl PacketPipeline {
         }
     }
 
+#[allow(clippy::too_many_arguments)]
     pub fn process_packet(
         &mut self,
         ctx: &mut PacketContext,
@@ -89,11 +96,10 @@ impl PacketPipeline {
         }
 
         // ---- Loopback exclusion ----
-        if config.filter.exclude_loopback {
-            if is_loopback(ctx.src_ip) || is_loopback(ctx.dst_ip) {
+        if config.filter.exclude_loopback
+            && (is_loopback(ctx.src_ip) || is_loopback(ctx.dst_ip)) {
                 return;
             }
-        }
 
         // ---- Multicast exclusion ----
         if config.filter.exclude_multicast && is_multicast(ctx.dst_ip) {
@@ -106,69 +112,57 @@ impl PacketPipeline {
         }
 
         // ---- Protocol filter ----
-        if let Some(ref proto_filter) = config.filter.protocol_filter {
-            if !ctx.protocol.eq_ignore_ascii_case(proto_filter) {
+        if let Some(ref proto_filter) = config.filter.protocol_filter
+            && !ctx.protocol.eq_ignore_ascii_case(proto_filter) {
                 return;
             }
-        }
 
         // ---- IP filters ----
-        if let Some(ref ip_str) = config.filter.ip_filter {
-            if let Ok(filter_ip) = ip_str.parse::<IpAddr>() {
-                if ctx.src_ip != filter_ip && ctx.dst_ip != filter_ip {
+        if let Some(ref ip_str) = config.filter.ip_filter
+            && let Ok(filter_ip) = ip_str.parse::<IpAddr>()
+                && ctx.src_ip != filter_ip && ctx.dst_ip != filter_ip {
                     return;
                 }
-            }
-        }
-        if let Some(ref ip_str) = config.filter.src_ip_filter {
-            if let Ok(filter_ip) = ip_str.parse::<IpAddr>() {
-                if ctx.src_ip != filter_ip {
+        if let Some(ref ip_str) = config.filter.src_ip_filter
+            && let Ok(filter_ip) = ip_str.parse::<IpAddr>()
+                && ctx.src_ip != filter_ip {
                     return;
                 }
-            }
-        }
-        if let Some(ref ip_str) = config.filter.dst_ip_filter {
-            if let Ok(filter_ip) = ip_str.parse::<IpAddr>() {
-                if ctx.dst_ip != filter_ip {
+        if let Some(ref ip_str) = config.filter.dst_ip_filter
+            && let Ok(filter_ip) = ip_str.parse::<IpAddr>()
+                && ctx.dst_ip != filter_ip {
                     return;
                 }
-            }
-        }
 
         // ---- Exclude IP list ----
         for ip_str in &config.filter.exclude_ips {
-            if let Ok(excl_ip) = ip_str.parse::<IpAddr>() {
-                if ctx.src_ip == excl_ip || ctx.dst_ip == excl_ip {
+            if let Ok(excl_ip) = ip_str.parse::<IpAddr>()
+                && (ctx.src_ip == excl_ip || ctx.dst_ip == excl_ip) {
                     return;
                 }
-            }
         }
 
         // ---- Port filters ----
-        if let Some(port_filter) = config.filter.port_filter {
-            if ctx.src_port != port_filter && ctx.dst_port != port_filter {
+        if let Some(port_filter) = config.filter.port_filter
+            && ctx.src_port != port_filter && ctx.dst_port != port_filter {
                 return;
             }
-        }
-        if let Some(src_port_filter) = config.filter.src_port_filter {
-            if ctx.src_port != src_port_filter {
+        if let Some(src_port_filter) = config.filter.src_port_filter
+            && ctx.src_port != src_port_filter {
                 return;
             }
-        }
-        if let Some(dst_port_filter) = config.filter.dst_port_filter {
-            if ctx.dst_port != dst_port_filter {
+        if let Some(dst_port_filter) = config.filter.dst_port_filter
+            && ctx.dst_port != dst_port_filter {
                 return;
             }
-        }
 
         // ---- Exclude port list ----
-        if !config.filter.exclude_ports.is_empty() {
-            if config.filter.exclude_ports.contains(&ctx.src_port)
-                || config.filter.exclude_ports.contains(&ctx.dst_port)
+        if !config.filter.exclude_ports.is_empty()
+            && (config.filter.exclude_ports.contains(&ctx.src_port)
+                || config.filter.exclude_ports.contains(&ctx.dst_port))
             {
                 return;
             }
-        }
 
         // ================================================================
         // END FILTERS Ã¢â‚¬â€ normal pipeline begins
@@ -209,8 +203,8 @@ impl PacketPipeline {
         // ---------------- FLOW LIFECYCLE EVENTS ----------------
         if let Some(bus) = event_bus {
             let should_emit_flow = is_new_flow || !config.output.suppress_flow_updates;
-            if should_emit_flow {
-                if let Some(flow) = flow_table.flows.get(&flow_key) {
+            if should_emit_flow
+                && let Some(flow) = flow_table.flows.get(&flow_key) {
                     let event_type = if is_new_flow {
                         EventType::FlowNew
                     } else {
@@ -233,7 +227,6 @@ impl PacketPipeline {
                     event.attr_u64("flow_packets",   flow.packets);
                     bus.emit(event);
                 }
-            }
         }
 
         // ---------------- TCP REASSEMBLY ----------------
@@ -330,11 +323,11 @@ impl PacketPipeline {
         }
 
         // ---------------- DHCP LEASE -------- DEVICE BINDING ----------------
-        if config.protocol.enable_dhcp {
-            if let Some(ref msg_type) = ctx.dhcp_msg_type.clone() {
-                if msg_type == "ACK" || msg_type == "OFFER" {
-                    if let Some(ref assigned_ip_str) = ctx.dhcp_assigned_ip.clone() {
-                        if let Ok(assigned_ip) = IpAddr::from_str(assigned_ip_str) {
+        if config.protocol.enable_dhcp
+            && let Some(ref msg_type) = ctx.dhcp_msg_type.clone()
+                && (msg_type == "ACK" || msg_type == "OFFER")
+                    && let Some(ref assigned_ip_str) = ctx.dhcp_assigned_ip.clone()
+                        && let Ok(assigned_ip) = IpAddr::from_str(assigned_ip_str) {
                             let label = ctx.dhcp_hostname
                                 .as_deref()
                                 .or(ctx.dhcp_client_mac.as_deref())
@@ -347,14 +340,10 @@ impl PacketPipeline {
                                 );
                             }
                         }
-                    }
-                }
-            }
-        }
 
         // ---------------- mDNS ANSWER Ã¢â€ â€™ DNS CACHE BINDING ----------------
-        if config.protocol.enable_mdns && ctx.mdns_is_response {
-            if let Some(ref mdns_name) = ctx.mdns_query_name.clone() {
+        if config.protocol.enable_mdns && ctx.mdns_is_response
+            && let Some(ref mdns_name) = ctx.mdns_query_name.clone() {
                 let record_type = ctx.mdns_record_type.as_deref().unwrap_or("");
                 if record_type == "A" || record_type == "AAAA" {
                     dns_cache.insert(ctx.src_ip, mdns_name.clone());
@@ -363,7 +352,6 @@ impl PacketPipeline {
                     }
                 }
             }
-        }
 
         // ---------------- PROTOCOL EVENT EMISSION ----------------
         self.emit_protocol_events(ctx, config, &flow_id, event_bus);
@@ -372,7 +360,7 @@ impl PacketPipeline {
         // Safety net for flows that gained domain info from non-DNS paths
         // (e.g. TLS SNI, HTTP Host) or when DNS was processed via DoH.
         // O(f) cost is acceptable -------- runs at most once every 1000 packets.
-        if self.packet_counter % REBIND_INTERVAL_PACKETS == 0 {
+        if self.packet_counter.is_multiple_of(REBIND_INTERVAL_PACKETS) {
             flow_table.rebind_domains(dns_cache, &analyzer_manager.rdns_cache);
         }
 
@@ -431,8 +419,8 @@ impl PacketPipeline {
         let ts  = ctx.timestamp_us;
 
         // ---- DNS ----
-        if config.protocol.enable_dns {
-            if let Some(ref query_name) = ctx.dns_query_name {
+        if config.protocol.enable_dns
+            && let Some(ref query_name) = ctx.dns_query_name {
                 let event_type = if ctx.dns_is_response {
                     EventType::DnsResponse
                 } else {
@@ -463,7 +451,6 @@ impl PacketPipeline {
                     );
                 }
             }
-        }
 
         // ---- TLS CLIENT HELLO ----
         if config.protocol.enable_tls {
@@ -558,8 +545,8 @@ impl PacketPipeline {
         }
 
         // ---- DHCP ----
-        if config.protocol.enable_dhcp {
-            if let Some(ref msg_type) = ctx.dhcp_msg_type {
+        if config.protocol.enable_dhcp
+            && let Some(ref msg_type) = ctx.dhcp_msg_type {
                 let mut e = SnfEvent::new(0, pid, ts, EventType::DhcpMessage, "DHCP", flow_id);
                 e.attr_str("msg_type", msg_type.clone());
                 if let Some(ref mac)    = ctx.dhcp_client_mac   { e.attr_str("client_mac",   mac.clone()); }
@@ -581,11 +568,10 @@ impl PacketPipeline {
                     );
                 }
             }
-        }
 
         // ---- ICMP ----
-        if config.protocol.enable_icmp {
-            if let Some(icmp_type) = ctx.icmp_type {
+        if config.protocol.enable_icmp
+            && let Some(icmp_type) = ctx.icmp_type {
                 let mut e = SnfEvent::new(0, pid, ts, EventType::IcmpMessage, "ICMP", flow_id);
                 e.attr_u8("icmp_type", icmp_type);
                 e.attr_ip("src_ip", ctx.src_ip);
@@ -594,11 +580,10 @@ impl PacketPipeline {
                 if let Some(ref desc) = ctx.icmp_description  { e.attr_str("description", desc.clone()); }
                 bus.emit(e);
             }
-        }
 
         // ---- SMB ----
-        if config.protocol.enable_smb {
-            if let Some(ref command) = ctx.smb_command {
+        if config.protocol.enable_smb
+            && let Some(ref command) = ctx.smb_command {
                 let mut e = SnfEvent::new(0, pid, ts, EventType::SmbSession, "SMB", flow_id);
                 e.attr_str("command", command.clone());
                 e.attr_ip("src_ip", ctx.src_ip);
@@ -607,11 +592,10 @@ impl PacketPipeline {
                 if let Some(ref status) = ctx.smb_status  { e.attr_str("status",      status.clone()); }
                 bus.emit(e);
             }
-        }
 
         // ---- mDNS ----
-        if config.protocol.enable_mdns {
-            if let Some(ref query_name) = ctx.mdns_query_name {
+        if config.protocol.enable_mdns
+            && let Some(ref query_name) = ctx.mdns_query_name {
                 let mut e = SnfEvent::new(0, pid, ts, EventType::MdnsRecord, "mDNS", flow_id);
                 e.attr_str("query_name", query_name.clone());
                 e.attr_bool("is_response", ctx.mdns_is_response);
@@ -619,11 +603,10 @@ impl PacketPipeline {
                 if let Some(ref rtype) = ctx.mdns_record_type { e.attr_str("record_type", rtype.clone()); }
                 bus.emit(e);
             }
-        }
 
         // ---- ICS / SCADA — Phase 18 ----
-        if config.protocol.enable_ics {
-            if let Some(ref ics_proto) = ctx.ics_protocol {
+        if config.protocol.enable_ics
+            && let Some(ref ics_proto) = ctx.ics_protocol {
                 let (event_type, proto_str) = match ics_proto.as_str() {
                     "Modbus"      => (EventType::IcsModbus,     "MODBUS"),
                     "DNP3"        => (EventType::IcsDnp3,       "DNP3"),
@@ -683,7 +666,6 @@ impl PacketPipeline {
                     );
                 }
             }
-        }
 
         // ---- LAN DISCOVERY (LLDP / CDP) - Phase 18 ----
         if config.protocol.enable_lan {
@@ -752,7 +734,7 @@ impl PacketPipeline {
     }
 
     fn run_periodic_cleanup(&mut self, now_us: u64, flow_table: &mut FlowTable) {
-        if self.packet_counter % EXPIRE_INTERVAL_PACKETS == 0 {
+        if self.packet_counter.is_multiple_of(EXPIRE_INTERVAL_PACKETS) {
             flow_table.expire_flows(now_us, FLOW_IDLE_TIMEOUT_US);
             self.tcp_reassembler.evict_idle_streams(now_us);
         }

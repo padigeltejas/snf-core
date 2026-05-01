@@ -373,11 +373,10 @@ fn extract_sni_from_tls(data: &[u8]) -> Option<String> {
             let name_len = u16::from_be_bytes([data[p], data[p + 1]]) as usize;
             p += 2;
             if p + name_len > ext_end { break; }
-            if let Ok(sni) = std::str::from_utf8(&data[p..p + name_len]) {
-                if !sni.is_empty() {
+            if let Ok(sni) = std::str::from_utf8(&data[p..p + name_len])
+                && !sni.is_empty() {
                     return Some(sni.to_string());
                 }
-            }
             break;
         }
 

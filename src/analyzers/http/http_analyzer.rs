@@ -86,11 +86,10 @@ impl HttpAnalyzer {
         }
 
         // ---------------- HTTP/2 FRAME PARSER ----------------
-        if let Err(e) = parse_http2_frames(ctx, payload, config) {
-            if config.output.show_packet_logs {
+        if let Err(e) = parse_http2_frames(ctx, payload, config)
+            && config.output.show_packet_logs {
                 println!("HTTP/2 parse note: {}", e);
             }
-        }
 
         // If HTTP/2 already found a host, skip HTTP/1.x scan
         if ctx.http_host.is_some() {
@@ -262,14 +261,13 @@ fn parse_http1_first_line(ctx: &mut PacketContext, line: &str, config: &EngineCo
         let version = parts[0];
         ctx.http_version = Some(version.to_string());
 
-        if let Ok(code) = parts[1].parse::<u16>() {
-            if (100..=599).contains(&code) {
+        if let Ok(code) = parts[1].parse::<u16>()
+            && (100..=599).contains(&code) {
                 ctx.http_status_code = Some(code);
                 if config.output.show_packet_logs {
                     println!("HTTP Response: {} {}", version, code);
                 }
             }
-        }
         return;
     }
 
@@ -423,17 +421,15 @@ fn extract_http2_authority(
 
                     let domain_bytes = &rest[value_start..value_end];
 
-                    if domain_bytes.len() > 3 && domain_bytes.len() <= HTTP_MAX_HOST_LEN {
-                        if let Ok(domain) = std::str::from_utf8(domain_bytes) {
-                            if domain.contains('.') {
+                    if domain_bytes.len() > 3 && domain_bytes.len() <= HTTP_MAX_HOST_LEN
+                        && let Ok(domain) = std::str::from_utf8(domain_bytes)
+                            && domain.contains('.') {
                                 if config.output.show_packet_logs {
                                     println!("HTTP/2 :authority = {}", domain);
                                 }
                                 ctx.http_host = Some(domain.to_string());
                                 return;
                             }
-                        }
-                    }
                 }
             }
         }

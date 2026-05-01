@@ -139,9 +139,9 @@ impl TlsIntelligence {
             }
 
             // ALPN extension
-            if ext_type == 16 {
+            if ext_type == 16
 
-                if ext_size > 3 {
+                && ext_size > 3 {
 
                     let proto_len = payload[pos + 2] as usize;
 
@@ -158,7 +158,6 @@ impl TlsIntelligence {
                         }
                     }
                 }
-            }
 
             pos += ext_size;
         }

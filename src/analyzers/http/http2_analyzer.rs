@@ -300,11 +300,10 @@ fn decode_hpack(
         // The entire entry (name + value) comes from the static table.
         if byte & 0x80 != 0 {
             let idx = byte & 0x7F;
-            if idx >= 1 && idx <= 61 {
-                if let (Some(name), Some(value)) = (hpack_static_name(idx), hpack_static_value(idx)) {
+            if (1..=61).contains(&idx)
+                && let (Some(name), Some(value)) = (hpack_static_name(idx), hpack_static_value(idx)) {
                     apply_header(ctx, name, value, config);
                 }
-            }
             pos += 1;
             continue;
         }
@@ -412,12 +411,11 @@ fn apply_header(
             }
         }
         ":status" => {
-            if ctx.http_status_code.is_none() {
-                if let Ok(code) = value.parse::<u16>() {
+            if ctx.http_status_code.is_none()
+                && let Ok(code) = value.parse::<u16>() {
                     ctx.http_status_code = Some(code);
                     ctx.http_version = Some("HTTP/2".to_string());
                 }
-            }
         }
         "user-agent" => {
             if ctx.http_user_agent.is_none() {
@@ -430,11 +428,10 @@ fn apply_header(
             }
         }
         "content-length" => {
-            if ctx.http_content_length.is_none() {
-                if let Ok(len) = value.parse::<u64>() {
+            if ctx.http_content_length.is_none()
+                && let Ok(len) = value.parse::<u64>() {
                     ctx.http_content_length = Some(len);
                 }
-            }
         }
         _ => {}
     }

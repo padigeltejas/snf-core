@@ -64,8 +64,6 @@ fn merge_worker_shards(output_path: &str, num_workers: usize) {
 
 fn default_output_path(config: &EngineConfig) -> String {
     if let Some(ref p) = config.output.ndjson_output_path { return p.clone(); }
-    // SNF_RUN_DIR is set once in run_capture() — use it for a consistent
-    // timestamped path across all calls in the same session.
     if let Ok(run_dir) = std::env::var("SNF_RUN_DIR") {
         let ts = std::env::var("SNF_RUN_TS").unwrap_or_else(|_| "session".to_string());
         return format!("{}/snf_output_{}.ndjson", run_dir.trim_end_matches('/'), ts);
@@ -86,15 +84,12 @@ fn hash_pcap_file(path: &str) -> String {
             Ok(0) => break, Ok(n) => hasher.update(&buf[..n]), Err(_) => return String::new(),
         }
     }
-    format!("{:x}", hasher.finalize())
+    hasher.finalize().iter().map(|b| format!("{:02x}", b)).collect::<String>()
 }
 
 // ── Public entry point ────────────────────────────────────────────────────────
 
 pub fn run_capture(ports_db: &HashMap<u16, String>, config: &EngineConfig) {
-    // ── Timestamped run directory ─────────────────────────────────────────────
-    // Generate run_<timestamp> subfolder ONCE before any threads spawn.
-    // All calls to default_output_path() read SNF_RUN_DIR for consistency.
     {
         use chrono::Local;
         let ts      = Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
@@ -152,7 +147,7 @@ fn run_pcap_file(
 
     if use_threading {
         let header = SessionHeader::new(0, config.operation_mode.as_str(),
-            &hash_config(config), &pcap_path);
+            hash_config(config), &pcap_path);
         let (pool, tx) = WorkerPool::new(num_workers, Arc::new(config.clone()),
             Arc::new(ports_db.clone()), output_path.clone(), header.to_json_line());
         let mut seq: u64 = 0; let mut drops: u64 = 0;
@@ -246,7 +241,7 @@ fn run_live_capture(
 
     if use_threading {
         let header = SessionHeader::new(0, config.operation_mode.as_str(),
-            &hash_config(config), &device.name);
+            hash_config(config), &device.name);
         let (pool, tx) = WorkerPool::new(num_workers, Arc::new(config.clone()),
             Arc::new(ports_db.clone()), output_path.clone(), header.to_json_line());
         let mut seq: u64 = 0; let mut drops: u64 = 0;
@@ -377,17 +372,16 @@ impl CaptureEngine {
             self.header_written = true;
         }
 
-        match SlicedPacket::from_ethernet(&packet.data) {
+        match SlicedPacket::from_ethernet(packet.data) {
             Ok(sliced) => self.process_sliced(sliced, packet, timestamp_us, ports_db, config),
             Err(e) => {
-                if let Some(ref mut bus) = self.event_bus {
-                    if !config.output.suppress_parse_errors {
+                if let Some(ref mut bus) = self.event_bus
+                    && !config.output.suppress_parse_errors {
                         let mut ev = SnfEvent::new(0, self.packet_count, timestamp_us,
                             EventType::ParseError, "FRAME", "");
                         ev.attr_str("reason", format!("{:?}", e));
                         bus.emit(ev);
                     }
-                }
             }
         }
     }
@@ -401,8 +395,8 @@ impl CaptureEngine {
         config:       &EngineConfig,
     ) {
         // MAC discovery
-        if let Some(ref link) = sliced.link {
-            if let etherparse::LinkSlice::Ethernet2(eth) = link {
+        if let Some(ref link) = sliced.link
+            && let etherparse::LinkSlice::Ethernet2(eth) = link {
                 let mac = eth.source();
                 let mac_str = format!("{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
                     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
@@ -416,7 +410,6 @@ impl CaptureEngine {
                     }
                 }
             }
-        }
 
         if let Some(net) = sliced.net {
             let (src_ip_addr, dst_ip_addr) = match &net {
@@ -428,7 +421,9 @@ impl CaptureEngine {
                     IpAddr::V6(h.header().source_addr()),
                     IpAddr::V6(h.header().destination_addr()),
                 ),
+                NetSlice::Arp(_) => return, // ARP has no IP src/dst — skip
             };
+
             let src_ip = src_ip_addr.to_string();
             let dst_ip = dst_ip_addr.to_string();
 
@@ -452,11 +447,10 @@ impl CaptureEngine {
                             &mut self.flow_table, &mut self.dns_cache,
                             ports_db, &mut self.analyzer_manager, &mut self.event_bus,
                         );
-                        if let Some(ref bus) = self.event_bus {
-                            if bus.event_count() > 0 {
+                        if let Some(ref bus) = self.event_bus
+                            && bus.event_count() > 0 {
                                 self.session_reporter.observe_event(ctx.protocol.as_str());
                             }
-                        }
                     }
                     TransportSlice::Udp(udp) => {
                         let src_port = udp.source_port();
@@ -471,11 +465,10 @@ impl CaptureEngine {
                             &mut self.flow_table, &mut self.dns_cache,
                             ports_db, &mut self.analyzer_manager, &mut self.event_bus,
                         );
-                        if let Some(ref bus) = self.event_bus {
-                            if bus.event_count() > 0 {
+                        if let Some(ref bus) = self.event_bus
+                            && bus.event_count() > 0 {
                                 self.session_reporter.observe_event(ctx.protocol.as_str());
                             }
-                        }
                     }
                     TransportSlice::Icmpv4(icmp) => {
                         if config.protocol.enable_icmp {
@@ -505,7 +498,7 @@ impl CaptureEngine {
                             );
                         }
                     }
-
+                   
                 }
             }
         }
@@ -520,7 +513,6 @@ impl CaptureEngine {
             }
             _ => {
                 println!("[SNF] Session complete - {} packets -> {}", self.packet_count, output_path);
-                // Print the end-of-run summary box (non-stealth, non-replay only).
                 self.session_reporter.print_final_summary(
                     self.last_timestamp_us,
                     config.operation_mode.as_str(),
